@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Accomplishments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    {% include 'header.html' %}
+
+    <section class="accomplishments-section">
+        <div class="container">
+            <h2 class="section-title">My Accomplishments</h2>
+
+            {% if accomplishments is not none %}
+                {% for accomplishment in accomplishments %}
+                <div class="accomplishment-card">
+                    <img src="{{ url_for('static', filename='images/accomplishments/' + accomplishment.image)}}" alt="Accomplishment"
+                        class="accomplishment-image">
+                    <div class="accomplishment-content">
+                        <h3 class="accomplishment-title">{{accomplishment.title}}</h3>
+                        <p class="accomplishment-description">
+                            {{accomplishment.description}}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+    </section>
+
+</body>
+
+</html>

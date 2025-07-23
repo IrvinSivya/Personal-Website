@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">MyPortfolio</div>
+            <nav class="nav-links" id="nav-links">
+                <a href="{{url_for('skills')}}">Skills</a>
+                <a href="{{url_for('accomplishments')}}">Accomplishments</a>
+                <a href="{{url_for('projects')}}">Projects</a>
+                <a href="{{url_for('extra_curriculars')}}">Extra Curriculars</a>
+                <a href="{{url_for('experiences')}}">Experience</a>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+        </div>
+    </header>
+
+</body>
+
+</html>
