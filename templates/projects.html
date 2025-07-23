@@ -1,11 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Irvin Sivya's Projects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    
+
+    {% include "header.html" %}
+
+    <div class="container">
+        <h2 class="section-title">My Projects</h1>
+
+            {% if projects is not none %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                <div class="card">
+                    <img src="{{ url_for('static', filename='images/projects/' + project.image)}}" alt="Accomplishment"
+                        class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">{{project.title}}</h3>
+                        <p class="card-description">
+                            {{project.description}}
+                        </p>
+                        <p class="card-tech">{{ project.tech }}</p>
+                        <div class="buttons">
+                            {% if project.github %}
+                            <a href="{{ project.github }}" target="_blank" class="btn">GitHub</a>
+                            {% endif %}
+                            {% if project.link %}
+                            <a href="{{ project.link }}" target="_blank" class="btn secondary">Visual demonstration</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+            {% endif %}
+
+    </div>
+
 </body>
+
 </html>
