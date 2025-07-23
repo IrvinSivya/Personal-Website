@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Accomplishments</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Irvin Sivya's Accomplishments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -17,12 +17,12 @@
 
             {% if accomplishments is not none %}
                 {% for accomplishment in accomplishments %}
-                <div class="accomplishment-card">
+                <div class="card">
                     <img src="{{ url_for('static', filename='images/accomplishments/' + accomplishment.image)}}" alt="Accomplishment"
-                        class="accomplishment-image">
-                    <div class="accomplishment-content">
-                        <h3 class="accomplishment-title">{{accomplishment.title}}</h3>
-                        <p class="accomplishment-description">
+                        class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">{{accomplishment.title}}</h3>
+                        <p class="card-description">
                             {{accomplishment.description}}
                         </p>
                     </div>
