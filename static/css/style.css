@@ -204,12 +204,12 @@ a {
   gap: 2rem;
 }
 
-/**************************************** Card ****************************************/
+/**************************************** Accomplishments and Projects Card ****************************************/
 
 .section-title {
   text-align: center;
   font-size: 3rem;
-  color: #333;
+  color: #007BFF;
   margin-bottom: 3rem;
   margin-top: 1rem;
 }
@@ -246,7 +246,7 @@ a {
 .card-title {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #007BFF;
+  color: #333;
   margin-bottom: 0.5rem;
 }
 
@@ -276,4 +276,88 @@ a {
   }
 }
 
+/**************************************** Skills ****************************************/
 
+.skills-section {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.skills-title {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #007BFF;
+}
+
+.skill-category {
+  margin-bottom: 4rem;
+}
+
+.skill-category h2 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #2c2c2c;
+}
+
+.slider {
+  overflow: hidden;
+  position: relative;
+  display: flex
+}
+
+.slide-track {
+  display: flex;
+  animation: slide 30s linear infinite;
+}
+
+.slide {
+  width: 250px;
+  height: 150px;
+  flex-shrink: 0;
+  margin: 0 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.slider:hover .slide-track {
+  animation-play-state: paused;
+}
+
+.slide:hover {
+  transform: scale(1.05);
+}
+
+.slide img {
+  max-height: 100px;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .slide {
+    width: 180px;
+    height: 130px;
+  }
+
+  .slide img {
+    max-height: 40px;
+  }
+
+  .slide-track {
+    animation-duration: 30s;
+  }
+}
