@@ -1,11 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Irvin Sivya's Skills</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    
+    {% include "header.html" %}
+
+    <section class="skills-section">
+        <h1 class="skills-title">My Skills</h1>
+
+        {% if programming_skills is not none %}
+        <div class="skill-category">
+            <h2>Programming Languages</h2>
+            <div class="slider">
+                <div class="slide-track">
+                    {% for skill in programming_skills %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/programming/' + skill.image) }}"
+                            alt="{{ skill.title }}">
+                        <p>{{ skill.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="slide-track">
+                    {% for skill in programming_skills %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/programming/' + skill.image) }}"
+                            alt="{{ skill.title }}">
+                        <p>{{ skill.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if tools is not none %}
+        <div class="skill-category">
+            <h2>Frameworks, Databases, and Tools</h2>
+            <div class="slider">
+                <div class="slide-track">
+                    {% for tool in tools %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/tools/' + tool.image) }}"
+                            alt="{{ tool.title }}">
+                        <p>{{ tool.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="slide-track"">
+                    {% for tool in tools %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/tools/' + tool.image) }}"
+                            alt="{{ tool.title }}">
+                        <p>{{ tool.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if soft_skills is not none %}
+        <div class="skill-category">
+            <h2>Soft Skills</h2>
+            <div class="slider">
+                <div class="slide-track">
+                    {% for skill in soft_skills %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/soft_skills/' + skill.image) }}"
+                            alt="{{ skill.title }}">
+                        <p>{{ skill.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="slide-track">
+                    {% for skill in soft_skills %}
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/skills/soft_skills/' + skill.image) }}"
+                            alt="{{ skill.title }}">
+                        <p>{{ skill.title }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </section>
+
 </body>
+
 </html>
