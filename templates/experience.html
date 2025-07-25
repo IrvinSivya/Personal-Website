@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Irvin Sivya's Experiences</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    
+    {% include "header.html" %}
+    <section class="experiences">
+
+        <h1>My Experiences</h1>
+        <div class="small-cards-container">
+
+            {% if experiences is not none %}
+            {% for experience in experiences %}
+            <div class="small-card">
+                <img src="{{ url_for('static', filename='images/experiences/' + experience.image)}}" alt="experience" />
+                <div class="small-card-content">
+                    <h2>{{experience.title}}</h2>
+                    <p>{{experience.description}}</p>
+                    {% if experience.time %}
+                    <h3>{{experience.time}}</h3>
+                    {%endif%}
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+        </div>
+    </section>
 </body>
+
 </html>
