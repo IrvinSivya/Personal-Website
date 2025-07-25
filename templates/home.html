@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Irvin Sivya</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
   {% include 'header.html' %}
@@ -16,9 +18,9 @@
         <p class="subtext">THIS IS ME</p>
         <h1>IRVIN SIVYA</h1>
         <p class="description">
-            Wsg. Remember to apply to hack the north BEFORE saturday
+          Wsg. Remember to apply to hack the north BEFORE saturday
         </p>
-        <a href="#contact" class="btn-primary">Connect</a>
+        <a href="#footer" class="btn-primary">Connect</a>
       </div>
       <div class="hero-image">
         <img src="{{ url_for('static', filename='images/irvin_laughing.png') }}" alt="Profile Picture">
@@ -26,5 +28,8 @@
     </div>
   </section>
 
+  {% include 'footer.html' %}
+
 </body>
+
 </html>
