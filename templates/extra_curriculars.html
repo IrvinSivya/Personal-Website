@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Irvin Sivya's Extracurriculars</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% include "header.html" %}
+    <section class="extracurriculars">
+
+        <h1>My Extracurriculars</h1>
+        <div class="small-cards-container">
+
+            {% if ecs is not none %}
+            {% for ec in ecs %}
+            <div class="small-card">
+                <img src="{{ url_for('static', filename='images/extra_curriculars/' + ec.image)}}" alt="ec" />
+                <div class="small-card-content">
+                    <h2>{{ec.title}}</h2>
+                    <p>{{ec.description}}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+        </div>
+    </section>
+</body>
+
+</html>
