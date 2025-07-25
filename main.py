@@ -16,12 +16,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 @app.route("/")
-def main():
+def home():
     return render_template("home.html")
 
 @app.route("/skills")
 def skills():
-    return render_template("skills.html")
+    programming_skills = list(skills_collection.find({"section": "programming"}))
+    tools = list(skills_collection.find({"section": "tool"}))
+    soft_skills = list(skills_collection.find({"section": "soft"}))
+    return render_template("skills.html", programming_skills=programming_skills, tools=tools, soft_skills=soft_skills)
 
 @app.route("/accomplishments")
 def accomplishments():
@@ -35,8 +38,8 @@ def projects():
 
 @app.route("/extra_curriculars")
 def extra_curriculars():
-    extra_curriculars = list(extra_curriculars_collection.find())
-    return render_template("extra_curriculars.html", extra_curriculars=extra_curriculars)
+    ecs = list(extra_curriculars_collection.find())
+    return render_template("extra_curriculars.html", ecs=ecs)
 
 @app.route("/experiences")
 def experiences():
@@ -92,5 +95,7 @@ if __name__ == "__main__":
         }
     )
     '''
-    
+
+    #insert_document(collection_name='experiences', document_data={'title': "Code Ninjas Instructor", 'description': 'To be added', 'image': 'codeninjas.png'})
+
     app.run(debug=True)
