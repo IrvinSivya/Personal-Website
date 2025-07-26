@@ -1,19 +1,22 @@
 import os
 from dotenv import load_dotenv
+from pymongo import MongoClient
 from flask import Flask, render_template, request, url_for, redirect, jsonify
-from db_client import (
-    db,
-    skills_collection,
-    accomplishments_collection,
-    projects_collection,
-    extra_curriculars_collection,
-    experiences_collection
-)
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+
+MONGO_URI = os.environ.get("MONGO_URI")
+client = MongoClient(MONGO_URI)
+
+db = client.my_portfolio
+skills_collection = db.skills
+accomplishments_collection = db.accomplishments
+projects_collection = db.projects
+extra_curriculars_collection = db.extra_curriculars
+experiences_collection = db.experiences
 
 @app.route("/")
 def home():
