@@ -10,10 +10,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 app.config['SECRET_KEY'] = SECRET_KEY
 
 MONGO_URI = os.environ.get("MONGO_URI")
-
-print("SECRET KEY: ", SECRET_KEY)
-print("Connecting to MongoDB with URI:", MONGO_URI)
-
 client = MongoClient(MONGO_URI)
 
 db = client.my_portfolio
