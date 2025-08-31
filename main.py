@@ -83,9 +83,12 @@ def insert_document(collection_name, document_data):
 if __name__ == "__main__":
     
     #Examples:
-
     '''
-    update_collection(collection_name='accomplishments', filter_query={'title': 'Dean\'s List Winner at Durham'}, 
+    update_collection(collection_name='projects', filter_query={'title': 'Project R.O.S.E.'}, 
+                      update_fields= {'image': 'rose.png'})
+    '''
+    '''
+    update_collection(collection_name='projects', filter_query={'title': 'Intellisage'}, 
                       update_fields= {'description': 'After a long season of hard work and leadership, I was able to achieve the Dean\'s List at Durham College in 2024 with FRC team 1285!', 
                       'image': 'durham_deans.jpg'})
     '''
@@ -100,6 +103,6 @@ if __name__ == "__main__":
     )
     '''
 
-    #insert_document(collection_name='experiences', document_data={'title': "Code Ninjas Instructor", 'description': 'To be added', 'image': 'codeninjas.png'})
+    #insert_document(collection_name='projects', document_data={'title': 'Student Skill Swap', 'description': 'Amazing stuff', 'tech': 'Python, Flask, HTML, CSS, Javascript', 'image': 'skillswap.png'})
 
     app.run(debug=True)
