@@ -83,9 +83,10 @@ def insert_document(collection_name, document_data):
 if __name__ == "__main__":
     
     #Examples:
+
     '''
-    update_collection(collection_name='projects', filter_query={'title': 'Project R.O.S.E.'}, 
-                      update_fields= {'image': 'rose.png'})
+    update_collection(collection_name='experiences', filter_query={'title': 'Instructor'}, 
+                      update_fields= {'description': '', 'time': '2024 Summer'})
     '''
     '''
     update_collection(collection_name='projects', filter_query={'title': 'Intellisage'}, 
@@ -103,6 +104,6 @@ if __name__ == "__main__":
     )
     '''
 
-    #insert_document(collection_name='projects', document_data={'title': 'Student Skill Swap', 'description': 'Amazing stuff', 'tech': 'Python, Flask, HTML, CSS, Javascript', 'image': 'skillswap.png'})
+    #insert_document(collection_name='projects', document_data={'title': 'SalesPatriot Logging Dashboard', 'description': 'Amazing stuff', 'image': 'wow.png'})
 
     app.run(debug=True)
