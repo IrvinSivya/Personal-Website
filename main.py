@@ -47,7 +47,7 @@ def extra_curriculars():
 
 @app.route("/experiences")
 def experiences():
-    experiences = list(experiences_collection.find())
+    experiences = list(experiences_collection.find().sort({'priority': 1}))
     return render_template("experience.html",experiences=experiences)
 
 def update_collection(collection_name, filter_query, update_fields):
@@ -83,15 +83,11 @@ def insert_document(collection_name, document_data):
 if __name__ == "__main__":
     
     #Examples:
-
+    
     '''
-    update_collection(collection_name='experiences', filter_query={'title': 'Instructor'}, 
-                      update_fields= {'description': '', 'time': '2024 Summer'})
-    '''
-    '''
-    update_collection(collection_name='projects', filter_query={'title': 'Intellisage'}, 
-                      update_fields= {'description': 'After a long season of hard work and leadership, I was able to achieve the Dean\'s List at Durham College in 2024 with FRC team 1285!', 
-                      'image': 'durham_deans.jpg'})
+    update_collection(collection_name='extra_curriculars', filter_query={'title': 'Powerlifting'}, 
+                      update_fields= {'description': 'My journey to this sport goes as follows: went to gym = wanted to get stronger = joined powerlifting. I now not only hold my school’s all time bench and deadlift records for the 66 kg weight class, but I also hold the title of not skipping leg day 💪.', 
+                      })
     '''
     '''
     insert_document(
@@ -103,6 +99,18 @@ if __name__ == "__main__":
         }
     )
     '''
+    '''
+    insert_document(
+        collection_name='experiences',
+        document_data={
+            'title': 'SalesPatriot Internship ',
+            'description': 'Wanting to learn more about machine learning and AI agents, I interned at SalesPatriot through HUVTSP 2025. To address AI hallucinations, I pitched a logging and reliability analysis dashboard for AI responses.',
+            'image': 'SalesPatriot.png',
+            'time': 'July 2025 - August 2025'
+        }
+    )
+    '''
+    
 
     #insert_document(collection_name='projects', document_data={'title': 'SalesPatriot Logging Dashboard', 'description': 'Amazing stuff', 'image': 'wow.png'})
 
