@@ -14,17 +14,25 @@
 
   <section class="hero">
     <div class="container hero-content">
+      
+      <!-- LEFT SIDE TEXT -->
       <div class="hero-text">
         <p class="subtext">THIS IS ME</p>
         <h1>IRVIN SIVYA</h1>
         <p class="description">
-          Hello!
+          Hello! To the right is my Schulich Leader Scholarship Video. Enjoy!
         </p>
         <a href="#footer" class="btn-primary">Connect</a>
       </div>
+
+      <!-- RIGHT SIDE VIDEO -->
       <div class="hero-image">
-        <img src="{{ url_for('static', filename='images/irvin_laughing.png') }}" alt="Profile Picture">
+        <video controls>
+          <source src="{{ url_for('static', filename='images/schulich.mp4') }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
       </div>
+
     </div>
   </section>
 
