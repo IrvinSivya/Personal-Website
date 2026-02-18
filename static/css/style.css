@@ -157,6 +157,17 @@ a {
   text-align: center;
 }
 
+/* Hero Video Styling */
+.hero-image video {
+  width: 100%;
+  max-width: 1200px;       /* makes the video wider */
+  height: 800px;          /* sets a taller height */
+  object-fit: cover;      /* fills the container nicely */
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  background: black;
+}
+
 .hero-image img {
   max-width: 500px;
 }
