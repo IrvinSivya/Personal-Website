@@ -32,12 +32,16 @@ def skills():
 
 @app.route("/accomplishments")
 def accomplishments():
-    accomplishments = list(accomplishments_collection.find())
+    pinned = list(accomplishments_collection.find({'priority': {'$exists': True}}).sort('priority', 1))
+    rest = list(accomplishments_collection.find({'priority': {'$exists': False}}))
+    accomplishments = pinned + rest
     return render_template("accomplishments.html", accomplishments=accomplishments)
 
 @app.route("/projects")
 def projects():
-    projects = list(projects_collection.find())
+    featured = list(projects_collection.find({'title': 'LibeCode'}))
+    rest = list(projects_collection.find({'title': {'$ne': 'LibeCode'}}))
+    projects = featured + rest
     return render_template("projects.html",projects=projects)
 
 @app.route("/extra_curriculars")
@@ -113,5 +117,85 @@ if __name__ == "__main__":
     
 
     #insert_document(collection_name='projects', document_data={'title': 'SalesPatriot Logging Dashboard', 'description': 'Amazing stuff', 'image': 'wow.png'})
+
+    # --- Accomplishments ---
+
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'Wolfhacks 2025 - 1st Place',
+            'description': 'Won 1st place out of 76 teams at Wolfhacks 2025, PDSB\'s largest hackathon. Our team tackled waste management with three parts: a waste-classifying AI built with Python and Transformers, a Java awareness app, and a Micro:bit bacteria prototype. I led the AI component – learned new libraries on the fly and pulled it all together in 48 hours.',
+            'image': 'wolfhacks_win.webp'
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'Judges Award - 2025 FRC World Championship',
+            'description': 'As lead programmer on FRC Team 1241, we earned the Judges Award at the 2025 FRC World Championship in the Hopper Division. Our outreach efforts – from robot demos to Girls+ in STEM events – along with our competitive performance on the field made this one happen.',
+            'image': 'worlds_judges.jpg'
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'FRC Rookie All-Star Award 2023',
+            'description': 'Won the Rookie All-Star Award in my first FRC season with Team 1285. As a first-year member, I picked up command-based programming quickly, contributed to the autonomous routine, and helped wherever I could to make the season a success.',
+            'image': 'rookie_all_star.jpg'
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'FRC Innovation Award 2024',
+            'description': 'Won the Innovation Award with FRC Team 1285, recognizing the creative technical solutions we brought to the 2024 season. This was also the year our team won the Durham College District Event and I earned FRC\'s Dean\'s List.',
+            'image': 'innovation_award.jpg'
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'FRC Technical Leadership Award 2025',
+            'description': 'Earned the Technical Leadership Award with FRC Team 1241 during the 2025 season. As lead programmer, I hosted workshops, mentored the subteam, and implemented key systems including a Ramsete path follower and vision-filtered localization.',
+            'image': 'tech_leadership.jpg'
+        }
+    )
+    '''
+
+    # --- Experiences ---
+
+    '''
+    insert_document(
+        collection_name='experiences',
+        document_data={
+            'title': 'Harvard HUVTSP',
+            'description': 'Participated in Harvard\'s Undergraduate Ventures-TECH Summer Program (HUVTSP) in the summer of 2025. Got exposure to the startup world through fireside chats with founders and executives – including Lila Snyder and Mark Cuban – while developing entrepreneurial skills alongside my SalesPatriot internship.',
+            'image': 'huvtsp.jpg',
+            'time': 'Summer 2025'
+        }
+    )
+    '''
+
+    # --- Extra Curriculars ---
+
+    '''
+    insert_document(
+        collection_name='extra_curriculars',
+        document_data={
+            'title': 'CSMC Prep Club',
+            'description': 'Co-founded my school\'s Waterloo CSMC Prep Club during Grade 12. As co-president, I ran weekly study sessions and built custom slideshows to help classmates tackle the Senior Math Contest. The prep paid off – I won the School Champion Award at the 2025 CSMC and earned a Certificate of Distinction.',
+            'image': 'csmc_club.jpg'
+        }
+    )
+    '''
 
     app.run(debug=True)
