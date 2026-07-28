@@ -115,7 +115,7 @@ a {
 }
 
 .nav-links > a:hover {
-  color: #007BFF;
+  color: #000;
 }
 
 .nav-links > a:hover::after {
@@ -123,7 +123,7 @@ a {
 }
 
 .nav-links > a.active {
-  color: #007BFF;
+  color: #000;
   font-weight: 600;
 }
 
@@ -283,7 +283,7 @@ a {
 .modal-file-name {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #0056b3;
+  color: #1c1c1c;
   word-break: break-all;
 }
 
@@ -382,7 +382,7 @@ a {
 }
 
 .hero-text .subtext {
-  color: #007BFF;
+  color: #333;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -401,7 +401,7 @@ a {
 .highlight-callout {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #0056b3;
+  color: #1c1c1c;
   background-color: rgba(0, 123, 255, 0.08);
   border-left: 4px solid #007BFF;
   border-radius: 4px;
@@ -411,7 +411,7 @@ a {
 
 .callout-label {
   font-weight: 700;
-  color: #007BFF;
+  color: #000;
   margin-right: 0.35rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -558,7 +558,7 @@ a {
 .section-title {
   text-align: center;
   font-size: 3rem;
-  color: #007BFF;
+  color: #1c1c1c;
   padding: 3rem 1rem;
 }
 
@@ -634,7 +634,7 @@ a {
 .skills-title {
   font-size: 3rem;
   margin-bottom: 1.5rem;
-  color: #007BFF;
+  color: #1c1c1c;
 }
 
 .skill-category {
@@ -720,7 +720,7 @@ a {
 .extracurriculars h1, .experiences h1 {
   text-align: center;
   padding: 3rem 1rem;
-  color: #007BFF;
+  color: #1c1c1c;
   font-size: 3rem;
 }
 
