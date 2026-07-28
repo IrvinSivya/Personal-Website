@@ -9,20 +9,49 @@
 
 <body>
 
-    <header class="main-header">
+    <header class="main-header {% if request.endpoint == 'home' %}transparent{% endif %}" id="main-header">
         <div class="container">
-            <div class="logo">MyPortfolio</div>
+
+            <!-- Left: monogram mark -->
+            <a href="{{ url_for('home') }}" class="logo" aria-label="Irvin Sivya - Home">IS</a>
+
+            <!-- Center: section navigation -->
             <nav class="nav-links" id="nav-links">
-                <a href="{{url_for('skills')}}">Skills</a>
-                <a href="{{url_for('accomplishments')}}">Accomplishments</a>
-                <a href="{{url_for('projects')}}">Projects</a>
-                <a href="{{url_for('extra_curriculars')}}">Extracurriculars</a>
-                <a href="{{url_for('experiences')}}">Experience</a>
-                <a href="{{ url_for('home') }}" class="home-icon">
-                    <img src="{{ url_for('static', filename='images/icons/homeicon.png') }}" alt="Home" />
-                </a>
+                <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">About</a>
+                <a href="{{ url_for('projects') }}" class="{% if request.endpoint == 'projects' %}active{% endif %}">Projects</a>
+                <a href="{{ url_for('experiences') }}" class="{% if request.endpoint == 'experiences' %}active{% endif %}">Experience</a>
+                <a href="{{ url_for('extra_curriculars') }}" class="{% if request.endpoint == 'extra_curriculars' %}active{% endif %}">Extracurriculars</a>
+                <a href="{{ url_for('accomplishments') }}" class="{% if request.endpoint == 'accomplishments' %}active{% endif %}">Awards</a>
+                <a href="{{ url_for('home') }}#footer">Contact</a>
+
+                <!-- Shown only inside the mobile slide-down menu -->
+                <div class="mobile-actions">
+                    <a href="https://github.com/IrvinSivya" target="_blank" class="header-icon" aria-label="GitHub">
+                        <img src="{{ url_for('static', filename='images/icons/githubicon.png') }}" alt="GitHub">
+                    </a>
+                    <a href="https://www.linkedin.com/in/irvin-sivya-25178536b/" target="_blank" class="header-icon" aria-label="LinkedIn">
+                        <img src="{{ url_for('static', filename='images/icons/linkedin.png') }}" alt="LinkedIn">
+                    </a>
+                    <!-- TODO: same resume link as above -->
+                    <a href="#" class="resume-link" target="_blank">Resume</a>
+                </div>
             </nav>
-            <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+
+            <!-- Right: social + resume -->
+            <div class="header-actions">
+                <a href="https://github.com/IrvinSivya" target="_blank" class="header-icon" aria-label="GitHub">
+                    <img src="{{ url_for('static', filename='images/icons/githubicon.png') }}" alt="GitHub">
+                </a>
+                <a href="https://www.linkedin.com/in/irvin-sivya-25178536b/" target="_blank" class="header-icon" aria-label="LinkedIn">
+                    <img src="{{ url_for('static', filename='images/icons/linkedin.png') }}" alt="LinkedIn">
+                </a>
+                <!-- TODO: replace "#" with the resume link. Put a resume PDF at
+                     static/images/resume.pdf (or any static/ path) and set href to
+                     {{ url_for('static', filename='images/resume.pdf') }} -->
+                <a href="#" class="resume-link" target="_blank">Resume</a>
+                <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+            </div>
+
         </div>
     </header>
 
