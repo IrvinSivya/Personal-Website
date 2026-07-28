@@ -39,7 +39,13 @@ def accomplishments():
 
 @app.route("/projects")
 def projects():
-    featured_titles = ['CrimeWatcher', 'LibeCode']
+    # Identify the 2025 FRC robot project by its image so we don't depend on its
+    # exact title. If not found, the order falls back to LibeCode, CrimeWatcher.
+    robot = projects_collection.find_one({'image': '2025_robot.webp'})
+    featured_titles = ['LibeCode']
+    if robot:
+        featured_titles.append(robot['title'])
+    featured_titles.append('CrimeWatcher')
     featured = []
     for title in featured_titles:
         featured += list(projects_collection.find({'title': title}))
@@ -68,7 +74,7 @@ def update_collection(collection_name, filter_query, update_fields):
         raise ValueError("Collection don't exist")
 
     collection = db[collection_name]
-    collection.update_one(filter_query, {"$set": update_fields}, upsert=False)
+    return collection.update_one(filter_query, {"$set": update_fields}, upsert=False)
 
 def insert_document(collection_name, document_data):
     collections = {'skills': skills_collection,
@@ -207,132 +213,208 @@ if __name__ == "__main__":
     # drop the real file in the folder named in the comment and match the name.
     # ==========================================================================
 
+    # Idempotent wrapper: skip titles that already exist so a partial run can be
+    # re-run safely. Prints what it did.
+    def safe_insert(collection_name, document_data):
+        try:
+            insert_document(collection_name, document_data)
+            print(f"inserted:  {document_data['title']}")
+        except ValueError:
+            print(f"skipped (already exists):  {document_data['title']}")
+
+    # Insert if missing, otherwise update the given fields. Use this when a doc
+    # may already exist in the DB but its fields need to change.
+    def upsert(collection_name, title, fields):
+        data = dict(fields, title=title)
+        res = db[collection_name].update_one({'title': title}, {'$set': data}, upsert=True)
+        if res.upserted_id:
+            print(f"inserted:  {title}")
+        elif res.matched_count:
+            print(f"updated:   {title}")
+        else:
+            print(f"no change: {title}")
+
+    # Shared LinkedIn post (the "2nd 2nd 1st in 5 days" hackathon recap).
+    LINKEDIN_POST = 'https://www.linkedin.com/posts/irvin-sivya_%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AD%F0%9D%98%80%F0%9D%98%81-%F0%9D%97%B6%F0%9D%97%BB-%F0%9D%9F%B1-%F0%9D%97%B1%F0%9D%97%AE%F0%9D%98%86%F0%9D%98%80-ugcPost-7485405881447116800-3B3d/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFvF7x0BKNcghKQi5o4TK9uY8deEDR2Cj40'
+
     # --- New Projects ---
 
-    '''
-    insert_document(
-        collection_name='projects',
-        document_data={
-            'title': 'CrimeWatcher',
-            'description': 'CrimeWatcher is an ML pipeline that forecasts crime risk across all 158 Toronto neighbourhoods from 474K Toronto Police records. It uses a HistGradientBoostingRegressor with time-based splits and spatial-lag features, served through a Next.js and Leaflet dashboard. A companion voice-activated distress app pushes live emergencies onto the map through Supabase Realtime. I am still tuning the model before it goes live.',
-            'tech': 'Python, pandas, NumPy, Scikit-learn, Next.js, Leaflet, Supabase, Expo',
-            'link': 'https://devpost.com/software/crimewatcher-vq93bw',
-            'image': 'crimewatcher.png'  # TODO: add file to static/images/projects/
-        }
-    )
-    '''
-    '''
-    insert_document(
-        collection_name='projects',
-        document_data={
-            'title': 'OJuggle',
-            'description': 'OJuggle is a 1v1 soccer keep-ups competition that scores trick difficulty. I built it in a 90-minute window at Google Developer Groups Toronto Code the Cup. There was no ball on site, so we demoed with a hoodie stuffed in a bag. We took 1st place.',
-            'image': 'ojuggle.png'  # TODO: add file to static/images/projects/
-        }
-    )
-    '''
-    '''
-    insert_document(
-        collection_name='projects',
-        document_data={
-            'title': 'LaunchScore',
-            'description': 'LaunchScore is an e-commerce store ranker I built at the Daybot hackathon, where it placed 2nd.',
-            'image': 'launchscore.png'  # TODO: add file to static/images/projects/
-        }
-    )
-    '''
-    '''
-    insert_document(
+    upsert('projects', 'CrimeWatcher', {
+        'description': "CrimeWatcher forecasts neighbourhood crime risk across Toronto. I trained a gradient boosted model on 474,819 Toronto Police incident records, scored all 158 neighbourhoods, and rendered the result as a live choropleth. The features are lag, seasonal, and spatial terms built in Pandas, and the last six months are held out so the model is never scored on data it has already seen. It's paired with a mobile app where a spoken safe word sends your GPS location straight to the dashboard as a live pin. Next.js and Leaflet on the front, Supabase underneath, Expo for the app.",
+        'tech': 'Python, pandas, NumPy, Scikit-learn, Next.js, Leaflet, Supabase, Expo',
+        'link': 'https://devpost.com/software/crimewatcher-vq93bw',
+        'linkedin': LINKEDIN_POST,
+        'image': 'CrimeWatcher.png'
+    })
+    upsert('projects', 'OJuggle', {
+        'description': "OJuggle is a 1v1 soccer keep-ups platform. Two people go head to head and the app scores the trick difficulty, so flashier moves earn more points. We built it in a 90-minute window at Code the Cup, hosted by Google Developer Groups Toronto at Northeastern University. We didn't have a soccer ball on site, so the demo ran on a hoodie stuffed in a blue bag. We won 1st place.",
+        'linkedin': LINKEDIN_POST,
+        'image': 'OJuggle.png'
+    })
+    upsert('projects', 'LaunchScore', {
+        'description': "LaunchScore is a launch-readiness auditor for AI-generated storefronts. You paste in a store URL and get back an overall score, category scores, and a per-product breakdown of what's working and what isn't. It doesn't touch the store, it just tells the merchant what's costing them sales and what to fix first. Every finding is backed by evidence, either a check run in code or a comparison against real listings that sell well, so nothing in the report is guesswork. Findings are also tagged by type, which means results roll up across every store audited and Daybot can see which mistakes keep repeating. Built with a partner on Next.js and Supabase in about six hours, second place.",
+        'linkedin': LINKEDIN_POST,
+        'image': 'LaunchScore.png'
+    })
+    safe_insert(
         collection_name='projects',
         document_data={
             'title': 'ExpenseCity',
             'description': 'ExpenseCity is an expense tracker that renders your spending as a 3D city, where each building\'s height is the size of an expense. I built it at IBM\'s Bobathon, where it placed 2nd.',
-            'image': 'expensecity.png'  # TODO: add file to static/images/projects/
+            'image': 'ExpenseCity.jpg',
+            'linkedin': LINKEDIN_POST
         }
     )
-    '''
-    '''
-    insert_document(
+    # ExpenseCity was first inserted with a placeholder image and no LinkedIn link;
+    # fix both on the existing doc.
+    r = update_collection(
         collection_name='projects',
-        document_data={
-            'title': 'BotMarket',
-            'description': 'BotMarket is a consignment marketplace for used FRC, FTC, FLL, VEX, and WRO robotics parts. Teams consign their parts, and BotMarket lists and sells them.',
-            'image': 'botmarket.png'  # TODO: add file to static/images/projects/
+        filter_query={'title': 'ExpenseCity'},
+        update_fields={'image': 'ExpenseCity.jpg', 'linkedin': LINKEDIN_POST}
+    )
+    print(f"update ExpenseCity image + LinkedIn: matched {r.matched_count} document(s)")
+
+    # --- Update SalesPatriot Logging Dashboard (info + logo image) ---
+    # TODO: if matched 0, confirm the exact stored title of this project.
+    r = update_collection(
+        collection_name='projects',
+        filter_query={'title': 'SalesPatriot Logging Dashboard'},
+        update_fields={
+            'description': "Built during a six-week internship at SalesPatriot (YC W25), placed through Harvard's Undergraduate Ventures-TECH Summer Program. The dashboard tracks where the company's AI gets things wrong: it flags hallucinations in model output, sorts them by failure type, and charts the rates over time so the team can see reliability move instead of guessing at it. A partner and I defined what counted as a failure and the schema that stored it, which turned out to be most of the work, since scattered model output isn't much use until it's records you can count. Python and Flask on the backend, MongoDB for storage, Chart.js for the visuals.",
+            'image': 'SalesPatriot.png'
         }
     )
-    '''
+    print(f"update SalesPatriot Logging Dashboard: matched {r.matched_count} document(s)")
+    # Remove the GitHub link/button for now (may add back later).
+    r = projects_collection.update_one(
+        {'title': 'SalesPatriot Logging Dashboard'}, {'$unset': {'github': ''}})
+    print(f"remove SalesPatriot GitHub link: modified {r.modified_count} document(s)")
+
+    # --- Remove BotMarket project ---
+
+    r = projects_collection.delete_one({'title': 'BotMarket'})
+    print(f"delete BotMarket: removed {r.deleted_count} document(s)")
 
     # --- Update LibeCode (kept general on purpose) ---
 
-    '''
-    update_collection(
+    r = update_collection(
         collection_name='projects',
         filter_query={'title': 'LibeCode'},
         update_fields={
-            'description': 'I work on LibeCode full time with my co-founder. We are advised by professors at the University of Toronto and McMaster, with go-to-market mentorship from a co-founder of Vena Solutions.'
+            'description': 'I am currently working on LibeCode full time with my co-founder. We are advised by professors at the University of Toronto and McMaster, with go-to-market mentorship from a co-founder of Vena Solutions. Coming soon.'
         }
     )
-    '''
+    print(f"update LibeCode: matched {r.matched_count} document(s)")
 
     # --- New Awards (accomplishments collection) ---
 
-    '''
-    insert_document(
+    safe_insert(
         collection_name='accomplishments',
         document_data={
             'title': 'AWS Certified Cloud Practitioner and AI Practitioner',
             'description': 'I earned the AWS Certified Cloud Practitioner and AWS Certified AI Practitioner certifications in July 2026.',
-            'image': 'aws_certs.png'  # TODO: add file to static/images/accomplishments/
+            'image': 'aws_certs.png'
         }
     )
-    '''
-    '''
-    insert_document(
-        collection_name='accomplishments',
-        document_data={
-            'title': 'Three Hackathons in Five Days',
-            'description': 'I competed in three hackathons over five days in July 2026 and placed in all of them: 2nd at Daybot, 2nd at the IBM Bobathon, and 1st at GDG Code the Cup.',
-            'image': 'three_hackathons.png'  # TODO: add file to static/images/accomplishments/
-        }
-    )
-    '''
-    '''
-    insert_document(
-        collection_name='accomplishments',
-        document_data={
-            'title': 'Highest Autonomous Score at the 2025 FRC World Championship',
-            'description': 'I set the highest autonomous score at the 2025 FRC World Championship.',
-            'image': 'worlds_auto.png'  # TODO: add file to static/images/accomplishments/
-        }
-    )
-    '''
+    # Replace the old "Three Hackathons" award with a "4x Hackathon Winner" one.
+    r = accomplishments_collection.delete_one({'title': 'Three Hackathons in Five Days'})
+    print(f"delete Three Hackathons award: removed {r.deleted_count} document(s)")
+
+    upsert('accomplishments', '4x Hackathon Winner', {
+        'description': 'I placed at four hackathons: 1st at WolfHacks with Project R.O.S.E., 1st at GDG Code the Cup with OJuggle, 2nd at the Daybot hackathon with LaunchScore, and 2nd at the IBM Bobathon with ExpenseCity.',
+        'image': 'GDGWinner.jpg',
+        'link': '/projects'
+    })
+    # link_text is no longer used; the template renders an inline link instead.
+    accomplishments_collection.update_one({'title': '4x Hackathon Winner'}, {'$unset': {'link_text': ''}})
+
+    # --- Remove Highest Autonomous Score award ---
+
+    r = accomplishments_collection.delete_one({'title': 'Highest Autonomous Score at the 2025 FRC World Championship'})
+    print(f"delete Highest Autonomous Score award: removed {r.deleted_count} document(s)")
+
+    # --- Ordering: Schulich nominee, then 4x Hackathon Winner, then AWS cert ---
+    # Awards with a 'priority' render first (ascending), the rest follow. We give
+    # the two new awards fractional priorities just above Schulich's, so they slot
+    # in directly below it without moving any other award.
+    schulich = accomplishments_collection.find_one({'title': {'$regex': 'Schulich', '$options': 'i'}})
+    if schulich is None:
+        print("ordering: no Schulich award found (check its exact title)")
+    else:
+        p = schulich.get('priority')
+        if p is None:
+            top = accomplishments_collection.find_one({'priority': {'$exists': True}}, sort=[('priority', -1)])
+            p = (top['priority'] + 1) if top else 1
+            accomplishments_collection.update_one({'_id': schulich['_id']}, {'$set': {'priority': p}})
+            print(f"ordering: pinned '{schulich['title']}' at priority {p}")
+        else:
+            print(f"ordering: '{schulich['title']}' is at priority {p}")
+        accomplishments_collection.update_one(
+            {'title': '4x Hackathon Winner'}, {'$set': {'priority': p + 0.1}})
+        accomplishments_collection.update_one(
+            {'title': 'AWS Certified Cloud Practitioner and AI Practitioner'}, {'$set': {'priority': p + 0.2}})
+        print("ordering: placed 4x Hackathon Winner, then AWS cert, directly below Schulich")
+    pinned = list(accomplishments_collection.find({'priority': {'$exists': True}}).sort('priority', 1))
+    rest = list(accomplishments_collection.find({'priority': {'$exists': False}}))
+    print("ordering: accomplishments now render in this order:")
+    for a in pinned + rest:
+        print("   -", a['title'])
+
+    # --- Extracurriculars: update FRC Robotics + add Data Science ---
+
+    ec = extra_curriculars_collection.find_one({'title': {'$regex': 'robot|frc', '$options': 'i'}})
+    if ec is None:
+        print("EC robotics: no matching extracurricular found (check its title)")
+    else:
+        extra_curriculars_collection.update_one({'_id': ec['_id']}, {'$set': {
+            'description': "After FLL in middle school, I signed up for FRC in Grade 9. I started on Team 1285 as a drive team member and lead programmer, then joined Team 1241 as lead programmer. 4 years and 2,000+ hours later, I've learned PID control, OOP, motion profiling, odometry, vision tracking, and path following. Competed internationally 3x."
+        }})
+        print(f"EC robotics: updated '{ec['title']}'")
+
+    # Renamed from "Data Science"; remove the old doc if a prior run created it.
+    extra_curriculars_collection.delete_one({'title': 'Data Science'})
+    upsert('extra_curriculars', 'Data Science + ML', {
+        'description': "I got into data science and ML from hackathons. I'm currently working through a machine learning book recommended to me by Professor Periklis Andritsos at the University of Toronto, and building models on real datasets to get better at the fundamentals. Will continue pursuing these fields at Waterloo.",
+        'image': 'ml.jpg'
+    })
 
     # --- Fixes to existing documents ---
 
     # Hackathons extracurricular: rewrite to past tense with four wins.
     # TODO: confirm the exact stored title of this entry ('Hackathons' is a guess).
-    '''
-    update_collection(
+    r = update_collection(
         collection_name='extra_curriculars',
         filter_query={'title': 'Hackathons'},
         update_fields={
             'description': 'Hackathons are where I do some of my best work. I have won four of them, taking each project from an idea to a working demo under a tight deadline.'
         }
     )
-    '''
+    print(f"update Hackathons EC: matched {r.matched_count} document(s)")
 
-    # City of Brampton experience: was "Starting 2026", now a current role.
-    # TODO: confirm the exact stored title ('City of Brampton' is a guess) and the
-    # real start month. If "Starting 2026" also appears in the description text,
-    # add 'description' to update_fields and rewrite it here too.
-    '''
-    update_collection(
+    # City of Brampton experiences: two duplicate cards. Delete the stale one
+    # (the "will be starting in January 2026" card, tagged "Starting 2026") and
+    # rewrite the card we keep (the one currently tagged "January 2026 - Present").
+    r = experiences_collection.delete_one({'title': 'City of Brampton', 'time': 'Starting 2026'})
+    print(f"delete stale Brampton card: removed {r.deleted_count} document(s)")
+
+    r = update_collection(
         collection_name='experiences',
-        filter_query={'title': 'City of Brampton'},
+        filter_query={'title': 'City of Brampton', 'time': 'January 2026 - Present'},
         update_fields={
-            'time': 'January 2026 - Present'  # TODO: set the real start month
+            'description': "I started with the City of Brampton as a volunteer instructor in robotics, app development, and coding. That turned into a part-time role in January 2026, and I now teach math, photography, and STEM through the city's recreation programs, filling in across the STEM catalogue on short notice.",
+            'time': '2025 - Present'
         }
     )
-    '''
+    print(f"update Brampton card: matched {r.matched_count} document(s)")
+
+    # SalesPatriot experience card: update the description (keep title, image, time).
+    exp = experiences_collection.find_one({'title': {'$regex': 'SalesPatriot', '$options': 'i'}})
+    if exp is None:
+        print("SalesPatriot experience: no matching card found (check its title)")
+    else:
+        experiences_collection.update_one({'_id': exp['_id']}, {'$set': {
+            'description': "Interned at SalesPatriot (YC W25) through HUVTSP 2025, drawn in by machine learning and AI agents. I built a logging and reliability dashboard that flags hallucinations in AI responses, sorts them by failure type, and tracks rates over time, then pitched it to the founder."
+        }})
+        print(f"SalesPatriot experience: updated '{exp['title']}'")
 
     app.run(debug=True)
