@@ -530,12 +530,29 @@ a {
   background: #333;
 }
 
+/* Coordinated project button colors (the only colored buttons on the site) */
+.btn.github {
+  background: #24292E;
+}
+
+.btn.github:hover {
+  background: #1b1f23;
+}
+
+.btn.linkedin {
+  background: #0A66C2;
+}
+
+.btn.linkedin:hover {
+  background: #08508f;
+}
+
 .btn.secondary {
-  background: #595959;
+  background: #1F8A70;
 }
 
 .btn.secondary:hover {
-  background: #404040;
+  background: #176b56;
 }
 
 /**************************************** Accomplishments ****************************************/
@@ -602,6 +619,23 @@ a {
   color: #555;
   font-size: 1rem;
   line-height: 1.5;
+}
+
+.card-note {
+  margin-top: 0.75rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.inline-link {
+  color: #1c1c1c;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.inline-link:hover {
+  color: #555;
 }
 
 .card-tech {
