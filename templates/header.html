@@ -43,7 +43,7 @@
                 <div class="mobile-actions">
                     {{ github_link() }}
                     {{ linkedin_link() }}
-                    <a href="{{ url_for('static', filename='Irvin_Sivya_Resume.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume.pdf">Resume</a>
+                    <a href="{{ url_for('static', filename='Irvin_Sivya_Resume_Portfolio.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume_Portfolio.pdf">Resume</a>
                 </div>
             </nav>
 
@@ -52,9 +52,9 @@
                 {{ github_link() }}
                 {{ linkedin_link() }}
                 <span class="header-divider" aria-hidden="true"></span>
-                <!-- Downloads the resume. TODO: save the PDF as
-                     static/Irvin_Sivya_Resume.pdf for this link to work. -->
-                <a href="{{ url_for('static', filename='Irvin_Sivya_Resume.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume.pdf">Resume</a>
+                <!-- Opens a confirm popup, then downloads the resume. TODO: save the
+                     PDF as static/Irvin_Sivya_Resume_Portfolio.pdf for this to work. -->
+                <a href="{{ url_for('static', filename='Irvin_Sivya_Resume_Portfolio.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume_Portfolio.pdf">Resume</a>
                 <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
             </div>
 
