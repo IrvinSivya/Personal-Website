@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
   color: #333;
@@ -28,49 +32,154 @@ a {
   background-color: #ffffff;
   padding: 1.2rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid transparent;
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Transparent over the hero (home page only), before scroll */
+.main-header.transparent {
+  background-color: transparent;
+  box-shadow: none;
+  border-bottom-color: transparent;
+}
+
+/* Solid state once scrolled past the hero: subtle border + backdrop blur */
+.main-header.transparent.scrolled {
+  background-color: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom-color: #eee;
 }
 
 .main-header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1.5rem;
 }
 
+/* Monogram badge */
 .logo {
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: #007BFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  background: linear-gradient(135deg, #333, #1c1c1c);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.logo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
-.nav-links a {
+/* Direct children only, so the mobile-actions links keep their own styling */
+.nav-links > a {
   font-weight: 500;
+  font-size: 0.95rem;
   color: #333;
-  transition: color 0.3s;
+  transition: color 0.25s ease;
+  position: relative;
+  padding: 0.25rem 0;
 }
 
-.nav-links a:hover {
-  color: #007BFF;
+/* Animated underline for hover and current section */
+.nav-links > a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: linear-gradient(90deg, #333, #1c1c1c);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
 }
 
-.home-icon img {
-  width: 32px;     /* adjust size */
-  height: 32px;
-  object-fit: contain;
-  transition: transform 0.2s;
-  margin-right: 1rem; /* optional spacing */
+.nav-links > a:hover {
+  color: #000;
 }
 
-.home-icon img:hover {
-  transform: scale(1.1);
-  cursor: pointer;
+.nav-links > a:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-links > a.active {
+  color: #000;
+  font-weight: 600;
+}
+
+.nav-links > a.active::after {
+  transform: scaleX(1);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.header-divider {
+  width: 1px;
+  height: 22px;
+  background-color: #e2e2e2;
+}
+
+.header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #333;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.header-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.header-icon:hover {
+  color: #000;
+  background-color: rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.resume-link {
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(135deg, #333, #1c1c1c);
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resume-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .hamburger {
@@ -80,6 +189,144 @@ a {
   border: none;
   cursor: pointer;
   color: #333;
+}
+
+/* Download confirmation toast (resume button) */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1c1c1c;
+  color: #fff;
+  padding: 0.8rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-left: 4px solid #1c1c1c;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Resume download confirmation modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(28, 28, 28, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 3000;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  transform: translateY(12px);
+  transition: transform 0.25s ease;
+}
+
+.modal-overlay.show .modal {
+  transform: translateY(0);
+}
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.modal-file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.modal-file-badge {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: linear-gradient(135deg, #333, #1c1c1c);
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+}
+
+.modal-file-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1c1c1c;
+  word-break: break-all;
+}
+
+.modal-text {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-btn {
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.modal-btn.cancel {
+  background-color: #f2f4f8;
+  color: #555;
+}
+
+.modal-btn.cancel:hover {
+  background-color: #e2e6ec;
+}
+
+.modal-btn.confirm {
+  color: #fff;
+  background: linear-gradient(135deg, #333, #1c1c1c);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.modal-btn.confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 /**************************************** Footer *****************************************/
@@ -135,7 +382,7 @@ a {
 }
 
 .hero-text .subtext {
-  color: #007BFF;
+  color: #333;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -149,6 +396,25 @@ a {
   font-size: 1rem;
   margin: 1rem 0 2rem 0;
   color: #555;
+}
+
+.highlight-callout {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1c1c1c;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #1c1c1c;
+  border-radius: 4px;
+  padding: 0.9rem 1.2rem;
+  margin: 0 0 2rem 0;
+}
+
+.callout-label {
+  font-weight: 700;
+  color: #000;
+  margin-right: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Hero Image */
@@ -172,22 +438,46 @@ a {
   max-width: 500px;
 }
 
+/* Mobile actions live inside the slide-down menu only */
+.mobile-actions {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
     position: absolute;
     top: 70px;
     right: 2rem;
     background-color: white;
     border: 1px solid #eee;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
 
   .nav-links.show {
     display: flex;
+  }
+
+  /* Fold social + resume into the slide-down; hide the top-bar copies */
+  .mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    width: 100%;
+  }
+
+  .header-actions .header-icon,
+  .header-actions .resume-link,
+  .header-divider {
+    display: none;
   }
 
   .hamburger {
@@ -214,7 +504,7 @@ a {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background-color: #007BFF;
+  background-color: #1c1c1c;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -223,12 +513,12 @@ a {
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #333;
 }
 
 .btn {
   padding: 0.5rem 1rem;
-  background: #0077ff;
+  background: #1c1c1c;
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -237,15 +527,32 @@ a {
 }
 
 .btn:hover {
-  background: #005dd1;
+  background: #333;
+}
+
+/* Coordinated project button colors (the only colored buttons on the site) */
+.btn.github {
+  background: #24292E;
+}
+
+.btn.github:hover {
+  background: #1b1f23;
+}
+
+.btn.linkedin {
+  background: #0A66C2;
+}
+
+.btn.linkedin:hover {
+  background: #08508f;
 }
 
 .btn.secondary {
-  background: #4CAF50;
+  background: #1F8A70;
 }
 
 .btn.secondary:hover {
-  background: #3a9140;
+  background: #176b56;
 }
 
 /**************************************** Accomplishments ****************************************/
@@ -268,7 +575,7 @@ a {
 .section-title {
   text-align: center;
   font-size: 3rem;
-  color: #007BFF;
+  color: #1c1c1c;
   padding: 3rem 1rem;
 }
 
@@ -314,6 +621,23 @@ a {
   line-height: 1.5;
 }
 
+.card-note {
+  margin-top: 0.75rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.inline-link {
+  color: #1c1c1c;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.inline-link:hover {
+  color: #555;
+}
+
 .card-tech {
   color: #a9a9a9;
   font-size: 1rem;
@@ -344,7 +668,7 @@ a {
 .skills-title {
   font-size: 3rem;
   margin-bottom: 1.5rem;
-  color: #007BFF;
+  color: #1c1c1c;
 }
 
 .skill-category {
@@ -430,7 +754,7 @@ a {
 .extracurriculars h1, .experiences h1 {
   text-align: center;
   padding: 3rem 1rem;
-  color: #007BFF;
+  color: #1c1c1c;
   font-size: 3rem;
 }
 

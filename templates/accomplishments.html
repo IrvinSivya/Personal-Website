@@ -25,6 +25,9 @@
                         <p class="card-description">
                             {{accomplishment.description}}
                         </p>
+                        {% if accomplishment.link %}
+                        <p class="card-note">Check the <a href="{{ accomplishment.link }}" class="inline-link">Projects</a> tab for more info.</p>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
