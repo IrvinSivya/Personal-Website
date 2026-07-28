@@ -38,14 +38,12 @@
                 <a href="{{ url_for('experiences') }}" class="{% if request.endpoint == 'experiences' %}active{% endif %}">Experience</a>
                 <a href="{{ url_for('extra_curriculars') }}" class="{% if request.endpoint == 'extra_curriculars' %}active{% endif %}">Extracurriculars</a>
                 <a href="{{ url_for('accomplishments') }}" class="{% if request.endpoint == 'accomplishments' %}active{% endif %}">Awards</a>
-                <a href="{{ url_for('home') }}#footer">Contact</a>
 
                 <!-- Shown only inside the mobile slide-down menu -->
                 <div class="mobile-actions">
                     {{ github_link() }}
                     {{ linkedin_link() }}
-                    <!-- TODO: same resume link as below -->
-                    <a href="#" class="resume-link" target="_blank">Resume</a>
+                    <a href="{{ url_for('static', filename='Irvin_Sivya_Resume.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume.pdf">Resume</a>
                 </div>
             </nav>
 
@@ -54,10 +52,9 @@
                 {{ github_link() }}
                 {{ linkedin_link() }}
                 <span class="header-divider" aria-hidden="true"></span>
-                <!-- TODO: replace "#" with the resume link. Put a resume PDF at
-                     static/images/resume.pdf (or any static/ path) and set href to
-                     {{ url_for('static', filename='images/resume.pdf') }} -->
-                <a href="#" class="resume-link" target="_blank">Resume</a>
+                <!-- Downloads the resume. TODO: save the PDF as
+                     static/Irvin_Sivya_Resume.pdf for this link to work. -->
+                <a href="{{ url_for('static', filename='Irvin_Sivya_Resume.pdf') }}" class="resume-link" download="Irvin_Sivya_Resume.pdf">Resume</a>
                 <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
             </div>
 
