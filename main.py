@@ -46,6 +46,7 @@ def projects():
     if robot:
         featured_titles.append(robot['title'])
     featured_titles.append('CrimeWatcher')
+    featured_titles.append('OJuggle')
     featured = []
     for title in featured_titles:
         featured += list(projects_collection.find({'title': title}))
