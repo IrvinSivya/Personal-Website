@@ -35,8 +35,8 @@
             <nav class="nav-links" id="nav-links">
                 <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">About</a>
                 <a href="{{ url_for('projects') }}" class="{% if request.endpoint == 'projects' %}active{% endif %}">Projects</a>
-                <a href="{{ url_for('experiences') }}" class="{% if request.endpoint == 'experiences' %}active{% endif %}">Experience</a>
                 <a href="{{ url_for('accomplishments') }}" class="{% if request.endpoint == 'accomplishments' %}active{% endif %}">Awards</a>
+                <a href="{{ url_for('experiences') }}" class="{% if request.endpoint == 'experiences' %}active{% endif %}">Experience</a>
                 <a href="{{ url_for('skills') }}" class="{% if request.endpoint == 'skills' %}active{% endif %}">Skills</a>
                 <a href="{{ url_for('extra_curriculars') }}" class="{% if request.endpoint == 'extra_curriculars' %}active{% endif %}">Extracurriculars</a>
 
