@@ -39,8 +39,11 @@ def accomplishments():
 
 @app.route("/projects")
 def projects():
-    featured = list(projects_collection.find({'title': 'LibeCode'}))
-    rest = list(projects_collection.find({'title': {'$ne': 'LibeCode'}}))
+    featured_titles = ['CrimeWatcher', 'LibeCode']
+    featured = []
+    for title in featured_titles:
+        featured += list(projects_collection.find({'title': title}))
+    rest = list(projects_collection.find({'title': {'$nin': featured_titles}}))
     projects = featured + rest
     return render_template("projects.html",projects=projects)
 
