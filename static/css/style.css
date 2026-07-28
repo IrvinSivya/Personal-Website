@@ -191,6 +191,33 @@ a {
   color: #333;
 }
 
+/* Download confirmation toast (resume button) */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1c1c1c;
+  color: #fff;
+  padding: 0.8rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-left: 4px solid #007BFF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /**************************************** Footer *****************************************/
 
 .footer {
