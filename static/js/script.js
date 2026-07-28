@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Resume button: make it obvious the PDF is downloading
+  // Resume button: confirm the download and show the file name first
   const resumeLinks = document.querySelectorAll('.resume-link');
+  const RESUME_FILE = 'Irvin_Sivya_Resume_Portfolio.pdf';
 
   const showToast = (message) => {
     const toast = document.createElement('div');
@@ -25,9 +26,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000);
   };
 
+  const startDownload = (href) => {
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = RESUME_FILE;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('Downloading ' + RESUME_FILE);
+  };
+
+  const openDownloadModal = (href) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="dl-title">' +
+        '<h3 class="modal-title" id="dl-title">Download resume?</h3>' +
+        '<div class="modal-file">' +
+          '<span class="modal-file-badge">PDF</span>' +
+          '<span class="modal-file-name">' + RESUME_FILE + '</span>' +
+        '</div>' +
+        '<p class="modal-text">This will download the PDF to your device.</p>' +
+        '<div class="modal-actions">' +
+          '<button type="button" class="modal-btn cancel">Cancel</button>' +
+          '<button type="button" class="modal-btn confirm">Download</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('show'));
+
+    const close = () => {
+      overlay.classList.remove('show');
+      setTimeout(() => overlay.remove(), 250);
+      document.removeEventListener('keydown', onKey);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') close();
+    };
+
+    overlay.querySelector('.cancel').addEventListener('click', close);
+    overlay.querySelector('.confirm').addEventListener('click', () => {
+      startDownload(href);
+      close();
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener('keydown', onKey);
+  };
+
   resumeLinks.forEach((link) => {
-    link.addEventListener('click', () => {
-      showToast('Downloading resume (PDF)…');
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openDownloadModal(link.getAttribute('href'));
     });
   });
 
