@@ -201,4 +201,138 @@ if __name__ == "__main__":
     )
     '''
 
+    # ==========================================================================
+    # NEW CONTENT (2026) - uncomment a block, run `python main.py` once to write
+    # it to MongoDB, then re-comment. Every 'image' below is a placeholder:
+    # drop the real file in the folder named in the comment and match the name.
+    # ==========================================================================
+
+    # --- New Projects ---
+
+    '''
+    insert_document(
+        collection_name='projects',
+        document_data={
+            'title': 'CrimeWatcher',
+            'description': 'CrimeWatcher is an ML pipeline that forecasts crime risk across all 158 Toronto neighbourhoods from 474K Toronto Police records. It uses a HistGradientBoostingRegressor with time-based splits and spatial-lag features, served through a Next.js and Leaflet dashboard. A companion voice-activated distress app pushes live emergencies onto the map through Supabase Realtime. I am still tuning the model before it goes live.',
+            'tech': 'Python, pandas, NumPy, Scikit-learn, Next.js, Leaflet, Supabase, Expo',
+            'link': 'https://devpost.com/software/crimewatcher-vq93bw',
+            'image': 'crimewatcher.png'  # TODO: add file to static/images/projects/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='projects',
+        document_data={
+            'title': 'OJuggle',
+            'description': 'OJuggle is a 1v1 soccer keep-ups competition that scores trick difficulty. I built it in a 90-minute window at Google Developer Groups Toronto Code the Cup. There was no ball on site, so we demoed with a hoodie stuffed in a bag. We took 1st place.',
+            'image': 'ojuggle.png'  # TODO: add file to static/images/projects/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='projects',
+        document_data={
+            'title': 'LaunchScore',
+            'description': 'LaunchScore is an e-commerce store ranker I built at the Daybot hackathon, where it placed 2nd.',
+            'image': 'launchscore.png'  # TODO: add file to static/images/projects/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='projects',
+        document_data={
+            'title': 'ExpenseCity',
+            'description': 'ExpenseCity is an expense tracker that renders your spending as a 3D city, where each building\'s height is the size of an expense. I built it at IBM\'s Bobathon, where it placed 2nd.',
+            'image': 'expensecity.png'  # TODO: add file to static/images/projects/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='projects',
+        document_data={
+            'title': 'BotMarket',
+            'description': 'BotMarket is a consignment marketplace for used FRC, FTC, FLL, VEX, and WRO robotics parts. Teams consign their parts, and BotMarket lists and sells them.',
+            'image': 'botmarket.png'  # TODO: add file to static/images/projects/
+        }
+    )
+    '''
+
+    # --- Update LibeCode (kept general on purpose) ---
+
+    '''
+    update_collection(
+        collection_name='projects',
+        filter_query={'title': 'LibeCode'},
+        update_fields={
+            'description': 'I work on LibeCode full time with my co-founder. We are advised by professors at the University of Toronto and McMaster, with go-to-market mentorship from a co-founder of Vena Solutions.'
+        }
+    )
+    '''
+
+    # --- New Awards (accomplishments collection) ---
+
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'AWS Certified Cloud Practitioner and AI Practitioner',
+            'description': 'I earned the AWS Certified Cloud Practitioner and AWS Certified AI Practitioner certifications in July 2026.',
+            'image': 'aws_certs.png'  # TODO: add file to static/images/accomplishments/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'Three Hackathons in Five Days',
+            'description': 'I competed in three hackathons over five days in July 2026 and placed in all of them: 2nd at Daybot, 2nd at the IBM Bobathon, and 1st at GDG Code the Cup.',
+            'image': 'three_hackathons.png'  # TODO: add file to static/images/accomplishments/
+        }
+    )
+    '''
+    '''
+    insert_document(
+        collection_name='accomplishments',
+        document_data={
+            'title': 'Highest Autonomous Score at the 2025 FRC World Championship',
+            'description': 'I set the highest autonomous score at the 2025 FRC World Championship.',
+            'image': 'worlds_auto.png'  # TODO: add file to static/images/accomplishments/
+        }
+    )
+    '''
+
+    # --- Fixes to existing documents ---
+
+    # Hackathons extracurricular: rewrite to past tense with four wins.
+    # TODO: confirm the exact stored title of this entry ('Hackathons' is a guess).
+    '''
+    update_collection(
+        collection_name='extra_curriculars',
+        filter_query={'title': 'Hackathons'},
+        update_fields={
+            'description': 'Hackathons are where I do some of my best work. I have won four of them, taking each project from an idea to a working demo under a tight deadline.'
+        }
+    )
+    '''
+
+    # City of Brampton experience: was "Starting 2026", now a current role.
+    # TODO: confirm the exact stored title ('City of Brampton' is a guess) and the
+    # real start month. If "Starting 2026" also appears in the description text,
+    # add 'description' to update_fields and rewrite it here too.
+    '''
+    update_collection(
+        collection_name='experiences',
+        filter_query={'title': 'City of Brampton'},
+        update_fields={
+            'time': 'January 2026 - Present'  # TODO: set the real start month
+        }
+    )
+    '''
+
     app.run(debug=True)
