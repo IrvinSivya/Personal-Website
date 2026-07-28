@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
   color: #333;
@@ -28,21 +32,41 @@ a {
   background-color: #ffffff;
   padding: 1.2rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid transparent;
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Transparent over the hero (home page only), before scroll */
+.main-header.transparent {
+  background-color: transparent;
+  box-shadow: none;
+  border-bottom-color: transparent;
+}
+
+/* Solid state once scrolled past the hero: subtle border + backdrop blur */
+.main-header.transparent.scrolled {
+  background-color: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-bottom-color: #eee;
 }
 
 .main-header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1.5rem;
 }
 
 .logo {
   font-size: 1.6rem;
   font-weight: bold;
   color: #007BFF;
+  letter-spacing: 1px;
 }
 
 .nav-links {
@@ -54,23 +78,60 @@ a {
   font-weight: 500;
   color: #333;
   transition: color 0.3s;
+  position: relative;
 }
 
 .nav-links a:hover {
   color: #007BFF;
 }
 
-.home-icon img {
-  width: 32px;     /* adjust size */
-  height: 32px;
-  object-fit: contain;
-  transition: transform 0.2s;
-  margin-right: 1rem; /* optional spacing */
+/* Current section highlight */
+.nav-links a.active {
+  color: #007BFF;
 }
 
-.home-icon img:hover {
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background-color: #007BFF;
+  border-radius: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.header-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: transform 0.2s;
+}
+
+.header-icon img:hover {
   transform: scale(1.1);
   cursor: pointer;
+}
+
+.resume-link {
+  padding: 0.4rem 1rem;
+  border: 1px solid #007BFF;
+  border-radius: 4px;
+  color: #007BFF;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.3s, color 0.3s;
+}
+
+.resume-link:hover {
+  background-color: #007BFF;
+  color: #fff;
 }
 
 .hamburger {
@@ -172,22 +233,45 @@ a {
   max-width: 500px;
 }
 
+/* Mobile actions live inside the slide-down menu only */
+.mobile-actions {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
     position: absolute;
     top: 70px;
     right: 2rem;
     background-color: white;
     border: 1px solid #eee;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
 
   .nav-links.show {
     display: flex;
+  }
+
+  /* Fold social + resume into the slide-down; hide the top-bar copies */
+  .mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    width: 100%;
+  }
+
+  .header-actions .header-icon,
+  .header-actions .resume-link {
+    display: none;
   }
 
   .hamburger {
