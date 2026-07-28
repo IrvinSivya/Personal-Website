@@ -298,6 +298,14 @@ a {
   margin: 0 0 2rem 0;
 }
 
+.callout-label {
+  font-weight: 700;
+  color: #007BFF;
+  margin-right: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Hero Image */
 .hero-image {
   flex: 1 1 250px;
