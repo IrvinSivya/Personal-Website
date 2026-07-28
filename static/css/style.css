@@ -212,6 +212,17 @@ a {
   color: #555;
 }
 
+.highlight-callout {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0056b3;
+  background-color: rgba(0, 123, 255, 0.08);
+  border-left: 4px solid #007BFF;
+  border-radius: 4px;
+  padding: 0.9rem 1.2rem;
+  margin: 0 0 2rem 0;
+}
+
 /* Hero Image */
 .hero-image {
   flex: 1 1 250px;
