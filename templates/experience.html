@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Irvin Sivya's Experiences</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 
 <body>
+    {% from '_macros.html' import pic %}
     {% include "header.html" %}
     <section class="experiences">
 
@@ -18,7 +20,7 @@
             {% if experiences is not none %}
             {% for experience in experiences %}
             <div class="small-card">
-                <img src="{{ url_for('static', filename='images/experiences/' + experience.image)}}" alt="experience" />
+                {{ pic('experiences', experience.image, experience.title, priority=loop.first) }}
                 <div class="small-card-content">
                     <h2>{{experience.title}}</h2>
                     <p>{{experience.description}}</p>
@@ -34,7 +36,7 @@
     </section>
 
     {% include "footer.html" %}
-    
+
 </body>
 
 </html>
