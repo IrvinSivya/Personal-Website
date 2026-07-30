@@ -3,12 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Irvin Sivya's Skills</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 
 <body>
+    {% from '_macros.html' import pic %}
     {% include "header.html" %}
+
+    {# Each track is rendered twice so the marquee can loop seamlessly. The two
+       copies share a URL, so the browser still fetches each icon only once.
+       lazy=false because the slides are moved by a CSS transform, which lazy
+       loading mis-reads as off-screen. The icons are a few KB each. #}
+    {% macro track(items, folder) %}
+    <div class="slide-track">
+        {% for item in items %}
+        <div class="slide">
+            {{ pic(folder, item.image, item.title, lazy=false) }}
+            <p>{{ item.title }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endmacro %}
 
     <section class="skills-section">
         <h1 class="skills-title">My Skills</h1>
@@ -17,24 +35,8 @@
         <div class="skill-category">
             <h2>Programming Languages</h2>
             <div class="slider">
-                <div class="slide-track">
-                    {% for skill in programming_skills %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/programming/' + skill.image) }}"
-                            alt="{{ skill.title }}">
-                        <p>{{ skill.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="slide-track">
-                    {% for skill in programming_skills %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/programming/' + skill.image) }}"
-                            alt="{{ skill.title }}">
-                        <p>{{ skill.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+                {{ track(programming_skills, 'skills/programming') }}
+                {{ track(programming_skills, 'skills/programming') }}
             </div>
         </div>
         {% endif %}
@@ -43,24 +45,8 @@
         <div class="skill-category">
             <h2>Frameworks, Databases, and Tools</h2>
             <div class="slider">
-                <div class="slide-track">
-                    {% for tool in tools %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/tools/' + tool.image) }}"
-                            alt="{{ tool.title }}">
-                        <p>{{ tool.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="slide-track">
-                    {% for tool in tools %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/tools/' + tool.image) }}"
-                            alt="{{ tool.title }}">
-                        <p>{{ tool.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+                {{ track(tools, 'skills/tools') }}
+                {{ track(tools, 'skills/tools') }}
             </div>
         </div>
         {% endif %}
@@ -69,24 +55,8 @@
         <div class="skill-category">
             <h2>Soft Skills</h2>
             <div class="slider">
-                <div class="slide-track">
-                    {% for skill in soft_skills %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/soft_skills/' + skill.image) }}"
-                            alt="{{ skill.title }}">
-                        <p>{{ skill.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="slide-track">
-                    {% for skill in soft_skills %}
-                    <div class="slide">
-                        <img src="{{ url_for('static', filename='images/skills/soft_skills/' + skill.image) }}"
-                            alt="{{ skill.title }}">
-                        <p>{{ skill.title }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
+                {{ track(soft_skills, 'skills/soft_skills') }}
+                {{ track(soft_skills, 'skills/soft_skills') }}
             </div>
         </div>
         {% endif %}

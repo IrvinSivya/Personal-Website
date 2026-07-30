@@ -20,6 +20,14 @@ a {
   color: inherit;
 }
 
+/* Images are wrapped in <picture> so a WebP can be offered ahead of the
+   original. display:contents makes the wrapper generate no box of its own, so
+   selectors like `.small-card img { width: 100% }` keep sizing against the card
+   exactly as they did when the <img> was a direct child. */
+picture {
+  display: contents;
+}
+
 .container {
   width: 90%;
   max-width: 1200px;

@@ -1,0 +1,29 @@
+{# Shared image markup.
+
+   Every raster image under static/images has a .webp sibling of the same name.
+   We serve that to browsers that take it and keep the original as the fallback,
+   which means the filenames stored in MongoDB never have to change.
+
+   has_webp() is registered in main.py and checks the sibling actually exists, so
+   an image added later without one still renders instead of breaking: a <source>
+   that 404s is NOT retried against the <img>.
+
+   priority - above-the-fold hero image: fetch it ahead of everything else.
+   lazy     - defer until scrolled near. Off for the skills marquee, whose slides
+              are moved by a CSS transform that lazy loading reacts badly to. #}
+
+{% macro pic(folder, filename, alt, cls='', priority=false, lazy=true) %}
+  {%- if filename -%}
+    {%- set path = 'images/' ~ folder ~ '/' ~ filename -%}
+    {%- set webp = 'images/' ~ folder ~ '/' ~ filename.rsplit('.', 1)[0] ~ '.webp' -%}
+    <picture>
+      {%- if has_webp(webp) %}
+      <source srcset="{{ url_for('static', filename=webp) }}" type="image/webp">
+      {%- endif %}
+      <img src="{{ url_for('static', filename=path) }}" alt="{{ alt }}"
+           {% if cls %}class="{{ cls }}" {% endif %}decoding="async"
+           {%- if priority %} fetchpriority="high"
+           {%- elif lazy %} loading="lazy"{% endif %}>
+    </picture>
+  {%- endif -%}
+{% endmacro %}

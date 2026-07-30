@@ -6,44 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Irvin Sivya's Projects</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 
 <body>
 
+    {% from '_macros.html' import pic %}
     {% include "header.html" %}
 
     <div class="container">
-        <h2 class="section-title">My Projects</h1>
+        <h2 class="section-title">My Projects</h2>
 
-            {% if projects is not none %}
-            <div class="projects-grid">
-                {% for project in projects %}
-                <div class="card">
-                    <img src="{{ url_for('static', filename='images/projects/' + project.image)}}" alt="Accomplishment"
-                        class="card-image">
-                    <div class="card-content">
-                        <h3 class="card-title">{{project.title}}</h3>
-                        <p class="card-description">
-                            {{project.description}}
-                        </p>
-                        <p class="card-tech">{{ project.tech }}</p>
-                        <div class="buttons">
-                            {% if project.github %}
-                            <a href="{{ project.github }}" target="_blank" class="btn github">GitHub</a>
-                            {% endif %}
-                            {% if project.linkedin %}
-                            <a href="{{ project.linkedin }}" target="_blank" class="btn linkedin">LinkedIn</a>
-                            {% endif %}
-                            {% if project.link %}
-                            <a href="{{ project.link }}" target="_blank" class="btn secondary">Visual demonstration</a>
-                            {% endif %}
-                        </div>
+        {% if projects is not none %}
+        <div class="projects-grid">
+            {% for project in projects %}
+            <div class="card">
+                {# The first card is above the fold, so it loads eagerly; the rest
+                   wait until they are scrolled near. #}
+                {{ pic('projects', project.image, project.title, 'card-image', priority=loop.first) }}
+                <div class="card-content">
+                    <h3 class="card-title">{{project.title}}</h3>
+                    <p class="card-description">
+                        {{project.description}}
+                    </p>
+                    <p class="card-tech">{{ project.tech }}</p>
+                    <div class="buttons">
+                        {% if project.github %}
+                        <a href="{{ project.github }}" target="_blank" class="btn github">GitHub</a>
+                        {% endif %}
+                        {% if project.linkedin %}
+                        <a href="{{ project.linkedin }}" target="_blank" class="btn linkedin">LinkedIn</a>
+                        {% endif %}
+                        {% if project.link %}
+                        <a href="{{ project.link }}" target="_blank" class="btn secondary">Visual demonstration</a>
+                        {% endif %}
                     </div>
                 </div>
-
-                {% endfor %}
             </div>
-            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
 
     </div>
 
