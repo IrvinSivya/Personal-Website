@@ -434,15 +434,9 @@ picture {
 /* Hero Video Styling */
 .hero-image video {
   width: 100%;
-  /* The video is 9:16. Its frames are coded 1080x1080 with non-square pixels,
-     so anything that reads them raw looks stretched - the player squeezes them
-     back to 607.5x1080 on display. A fixed 800px height against width:100% gave
-     the box a shape of its own and distorted the footage; 450px at 9:16 is the
-     same 800px tall the design was after, with the proportions intact. */
-  max-width: 450px;
-  aspect-ratio: 9 / 16;
-  height: auto;
-  object-fit: cover;
+  max-width: 1200px;       /* makes the video wider */
+  height: 800px;          /* sets a taller height */
+  object-fit: cover;      /* fills the container nicely */
   border-radius: 16px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
   background: black;
