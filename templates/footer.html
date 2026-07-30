@@ -1,28 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
+{# Fragment, not a document - see the note at the top of header.html. #}
+<footer class="footer" id="footer">
+    <div class="social-links">
+        <a href="https://github.com/IrvinSivya" target="_blank" aria-label="GitHub">
+            <img src="{{ url_for('static', filename='images/icons/githubicon.png') }}" alt="GitHub"
+                 width="40" height="40" loading="lazy" decoding="async">
+        </a>
+        <a href="https://www.linkedin.com/in/irvin-sivya-25178536b/" target="_blank" aria-label="LinkedIn">
+            <img src="{{ url_for('static', filename='images/icons/linkedin.png') }}" alt="LinkedIn"
+                 width="40" height="40" loading="lazy" decoding="async">
+        </a>
+        <a href="https://instagram.com/irvs71" target="_blank" aria-label="Instagram">
+            <img src="{{ url_for('static', filename='images/icons/instagram.png') }}" alt="Instagram"
+                 width="40" height="40" loading="lazy" decoding="async">
+        </a>
+    </div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-
-<body>
-    <footer class="footer" , id="footer">
-        <div class="social-links">
-            <a href="https://github.com/IrvinSivya" target="_blank" aria-label="GitHub">
-                <img src="{{ url_for('static', filename='images/icons/githubicon.png') }}" alt="GitHub">
-            </a>
-            <a href="https://www.linkedin.com/in/irvin-sivya-25178536b/" target="_blank" aria-label="LinkedIn">
-                <img src="{{ url_for('static', filename='images/icons/linkedin.png') }}" alt="LinkedIn">
-            </a>
-            <a href="https://instagram.com/irvs71" target="_blank" aria-label="Instagram">
-                <img src="{{ url_for('static', filename='images/icons/instagram.png') }}" alt="Instagram">
-            </a>
-        </div>
-
-        <p class="footer-text">© 2026 I.S. Portfolio</p>
-    </footer>
-</body>
-
-</html>
+    <p class="footer-text">&copy; 2026 I.S. Portfolio</p>
+</footer>

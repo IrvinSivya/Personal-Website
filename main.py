@@ -1,16 +1,40 @@
+import mimetypes
 import os
+import time
+from functools import wraps
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask import Flask, render_template, request, url_for, redirect, jsonify
 
 load_dotenv()
 
+# Windows' mimetype registry has no entry for .webp, so the dev server hands it
+# out as application/octet-stream. Vercel's CDN gets this right on its own; this
+# is only so local runs match production.
+mimetypes.add_type('image/webp', '.webp')
+
 app = Flask(__name__)
 SECRET_KEY = os.getenv("SECRET_KEY")
 app.config['SECRET_KEY'] = SECRET_KEY
 
+# Static files are fingerprint-free, so a long max-age would serve stale CSS
+# after a deploy. An hour keeps repeat visits off the network without making a
+# change take a day to show up. In production Vercel serves /static from its CDN
+# (see vercel.json) and this only applies to local runs.
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600
+
+# Timeouts matter here because this runs as a serverless function: without them
+# a slow or unreachable Atlas node leaves the request hanging for 30s instead of
+# failing fast. connect=False defers the handshake off the import path.
 MONGO_URI = os.environ.get("MONGO_URI")
-client = MongoClient(MONGO_URI)
+client = MongoClient(
+    MONGO_URI,
+    connect=False,
+    maxPoolSize=5,
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=5000,
+    socketTimeoutMS=10000,
+)
 
 db = client.my_portfolio
 skills_collection = db.skills
@@ -19,50 +43,126 @@ projects_collection = db.projects
 extra_curriculars_collection = db.extra_curriculars
 experiences_collection = db.experiences
 
+
+# ---------------------------------------------------------------------------
+# Page data cache
+#
+# The content changes when a document is edited by hand, not per request, so
+# every visitor was paying for the same Atlas round trips. Results are held in
+# process for TTL seconds; a warm serverless instance then renders with no
+# database call at all.
+# ---------------------------------------------------------------------------
+
+CACHE_TTL = 300
+_cache = {}
+
+def cached(key):
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper():
+            hit = _cache.get(key)
+            if hit and time.time() - hit[0] < CACHE_TTL:
+                return hit[1]
+            value = fn()
+            _cache[key] = (time.time(), value)
+            return value
+        return wrapper
+    return decorator
+
+
+# Each raster image under static/images is built with a .webp sibling. Templates
+# only emit a <source> when one exists, because a <source> that 404s is not
+# retried against the <img> - the image would just be missing. The listing is
+# taken once at startup rather than stat-ing the disk on every image.
+_WEBP_FILES = set()
+for _dirpath, _dirnames, _filenames in os.walk(os.path.join(app.static_folder, 'images')):
+    for _name in _filenames:
+        if _name.lower().endswith('.webp'):
+            _rel = os.path.relpath(os.path.join(_dirpath, _name), app.static_folder)
+            _WEBP_FILES.add(_rel.replace(os.sep, '/'))
+
+@app.template_global()
+def has_webp(static_path):
+    return static_path in _WEBP_FILES
+
+
 @app.route("/")
 def home():
     return render_template("home.html")
 
+@cached('skills')
+def _skills_data():
+    # One query instead of three, split in Python. Each round trip to Atlas from
+    # a serverless function costs real latency, so the fewer the better.
+    everything = list(skills_collection.find())
+    return (
+        [s for s in everything if s.get('section') == 'programming'],
+        [s for s in everything if s.get('section') == 'tool'],
+        [s for s in everything if s.get('section') == 'soft'],
+    )
+
 @app.route("/skills")
 def skills():
-    programming_skills = list(skills_collection.find({"section": "programming"}))
-    tools = list(skills_collection.find({"section": "tool"}))
-    soft_skills = list(skills_collection.find({"section": "soft"}))
+    programming_skills, tools, soft_skills = _skills_data()
     return render_template("skills.html", programming_skills=programming_skills, tools=tools, soft_skills=soft_skills)
+
+@cached('accomplishments')
+def _accomplishments_data():
+    # Pinned awards (those with a 'priority') render first in ascending order,
+    # the rest follow. One fetch, sorted in Python.
+    everything = list(accomplishments_collection.find())
+    pinned = sorted((a for a in everything if 'priority' in a), key=lambda a: a['priority'])
+    rest = [a for a in everything if 'priority' not in a]
+    return pinned + rest
 
 @app.route("/accomplishments")
 def accomplishments():
-    pinned = list(accomplishments_collection.find({'priority': {'$exists': True}}).sort('priority', 1))
-    rest = list(accomplishments_collection.find({'priority': {'$exists': False}}))
-    accomplishments = pinned + rest
-    return render_template("accomplishments.html", accomplishments=accomplishments)
+    return render_template("accomplishments.html", accomplishments=_accomplishments_data())
 
-@app.route("/projects")
-def projects():
+@cached('projects')
+def _projects_data():
+    # Was six sequential queries (one lookup, one per featured title, one for the
+    # remainder). Now a single fetch ordered in Python.
+    everything = list(projects_collection.find())
+
     # Identify the 2025 FRC robot project by its image so we don't depend on its
     # exact title. If not found, the order falls back to LibeCode, CrimeWatcher.
-    robot = projects_collection.find_one({'image': '2025_robot.webp'})
+    robot = next((p for p in everything if p.get('image') == '2025_robot.webp'), None)
     featured_titles = ['LibeCode']
     if robot:
         featured_titles.append(robot['title'])
     featured_titles.append('CrimeWatcher')
     featured_titles.append('OJuggle')
+
+    by_title = {}
+    for p in everything:
+        by_title.setdefault(p.get('title'), []).append(p)
+
     featured = []
     for title in featured_titles:
-        featured += list(projects_collection.find({'title': title}))
-    rest = list(projects_collection.find({'title': {'$nin': featured_titles}}))
-    projects = featured + rest
-    return render_template("projects.html",projects=projects)
+        featured += by_title.get(title, [])
+    rest = [p for p in everything if p.get('title') not in featured_titles]
+    return featured + rest
+
+@app.route("/projects")
+def projects():
+    return render_template("projects.html", projects=_projects_data())
+
+@cached('extra_curriculars')
+def _extra_curriculars_data():
+    return list(extra_curriculars_collection.find())
 
 @app.route("/extra_curriculars")
 def extra_curriculars():
-    ecs = list(extra_curriculars_collection.find())
-    return render_template("extra_curriculars.html", ecs=ecs)
+    return render_template("extra_curriculars.html", ecs=_extra_curriculars_data())
+
+@cached('experiences')
+def _experiences_data():
+    return list(experiences_collection.find().sort('priority', 1))
 
 @app.route("/experiences")
 def experiences():
-    experiences = list(experiences_collection.find().sort({'priority': 1}))
-    return render_template("experience.html",experiences=experiences)
+    return render_template("experience.html", experiences=_experiences_data())
 
 def update_collection(collection_name, filter_query, update_fields):
     collections = {'skills': skills_collection,

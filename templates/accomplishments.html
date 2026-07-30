@@ -3,12 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Irvin Sivya's Accomplishments</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 
 <body>
 
+    {% from '_macros.html' import pic %}
     {% include 'header.html' %}
 
     <section class="accomplishments-section">
@@ -18,8 +21,7 @@
             {% if accomplishments is not none %}
                 {% for accomplishment in accomplishments %}
                 <div class="card">
-                    <img src="{{ url_for('static', filename='images/accomplishments/' + accomplishment.image)}}" alt="Accomplishment"
-                        class="card-image">
+                    {{ pic('accomplishments', accomplishment.image, accomplishment.title, 'card-image', priority=loop.first) }}
                     <div class="card-content">
                         <h3 class="card-title">{{accomplishment.title}}</h3>
                         <p class="card-description">

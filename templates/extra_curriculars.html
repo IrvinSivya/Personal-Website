@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Irvin Sivya's Extracurriculars</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 
 <body>
+    {% from '_macros.html' import pic %}
     {% include "header.html" %}
     <section class="extracurriculars">
 
@@ -18,7 +20,7 @@
             {% if ecs is not none %}
             {% for ec in ecs %}
             <div class="small-card">
-                <img src="{{ url_for('static', filename='images/extra_curriculars/' + ec.image)}}" alt="ec" />
+                {{ pic('extra_curriculars', ec.image, ec.title, priority=loop.first) }}
                 <div class="small-card-content">
                     <h2>{{ec.title}}</h2>
                     <p>{{ec.description}}</p>
@@ -31,7 +33,7 @@
     </section>
 
     {% include "footer.html" %}
-    
+
 </body>
 
 </html>
