@@ -31,13 +31,8 @@
       </div>
 
       <!-- RIGHT SIDE VIDEO -->
-      <!-- preload="none" is the important bit: the file is ~30 MB, and without it
-           the browser starts pulling the video down as part of the initial page
-           load. The poster is a still from the first frame, so the hero paints
-           immediately and nothing downloads until someone presses play. -->
       <div class="hero-image">
-        <video controls preload="none" playsinline
-               poster="{{ url_for('static', filename='images/schulich_poster.jpg') }}">
+        <video controls>
           <source src="{{ url_for('static', filename='images/schulich.mp4') }}" type="video/mp4">
           Your browser does not support the video tag.
         </video>
