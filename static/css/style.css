@@ -435,8 +435,14 @@ picture {
 .hero-image video {
   width: 100%;
   max-width: 1200px;       /* makes the video wider */
-  height: 800px;          /* sets a taller height */
-  object-fit: cover;      /* fills the container nicely */
+  /* The source is 1080x1080. A fixed 800px height gave the box a different
+     shape to the footage, and object-fit is not applied to a poster image
+     consistently across browsers - so the still was being stretched to fill
+     rather than cropped. Matching the box to the source makes stretching
+     impossible, for the poster and the playing video alike. */
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
   border-radius: 16px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
   background: black;
