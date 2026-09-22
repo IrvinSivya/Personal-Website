@@ -11,7 +11,7 @@
     ],
     "routes": [
         {
-            "src": "/static/(images|Irvin_Sivya_Resume_Portfolio\\.pdf)(.*)",
+            "src": "/static/(images|data|Irvin_Sivya_Resume_Portfolio\\.pdf)(.*)",
             "dest": "/static/$1$2",
             "headers": {
                 "cache-control": "public, max-age=604800, stale-while-revalidate=86400"
