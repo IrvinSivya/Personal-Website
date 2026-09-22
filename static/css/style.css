@@ -793,6 +793,8 @@ h1, h2, h3 { font-weight: inherit; }
 .tl__logo.is-logo img { position: relative; object-fit: contain; padding: 7px; }
 .tl__title { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
 .tl__org { color: var(--muted); font-size: 0.9rem; }
+.tl__link { color: var(--text); border-bottom: 1px solid var(--line-strong); transition: color 0.25s, border-color 0.25s; }
+.tl__link:hover { color: var(--accent); border-color: var(--accent); }
 .tl__desc { color: var(--muted); font-size: 0.97rem; }
 
 /* Awards */
