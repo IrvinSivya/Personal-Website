@@ -15,7 +15,7 @@
    A 2D canvas draws the route, the plane and its shadow, pins and tags. Plays once per session,
    skippable (click, Esc, Space, Enter), never for reduced motion or deep links, and falls back to
    simply showing the site when WebGL2 is missing, software-rendered, or the textures are slow.
-   The flight departs from Mumbai.
+   The flight departs from Punjab, India (Amritsar, ATQ).
    Debug: ?intro forces a replay; &introFrom=LHR tests another origin; &introT=2.5 freezes time. */
 (() => {
   const html = document.documentElement;
@@ -103,6 +103,7 @@
   /* --------------------------------------------------------------- route */
   const DEST = { code: 'YKF', name: 'Waterloo', lat: 43.4643, lon: -80.5204 };
   const ORIGINS = [
+    { code: 'ATQ', name: 'Punjab', lat: 31.71, lon: 74.80 },       // Amritsar, Punjab, India
     { code: 'LHR', name: 'London', lat: 51.47, lon: -0.46 },
     { code: 'HND', name: 'Tokyo', lat: 35.55, lon: 139.78 },
     { code: 'BOM', name: 'Mumbai', lat: 19.09, lon: 72.87 },
@@ -114,9 +115,9 @@
     { code: 'SIN', name: 'Singapore', lat: 1.36, lon: 103.99 },
     { code: 'CPT', name: 'Cape Town', lat: -33.97, lon: 18.6 },
   ];
-  // The flight always departs from India (Mumbai). Other origins exist only for testing via ?introFrom=.
+  // The flight always departs from Punjab, India. Other origins exist only for testing via ?introFrom=.
   const forced = (params.get('introFrom') || '').toUpperCase();
-  const origin = ORIGINS.find((o) => o.code === forced) || ORIGINS.find((o) => o.code === 'BOM');
+  const origin = ORIGINS.find((o) => o.code === forced) || ORIGINS[0];
 
   const A = toVec(origin.lat, origin.lon);
   const B = toVec(DEST.lat, DEST.lon);
