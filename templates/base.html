@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Irvin Sivya — CS @ Waterloo, Co-founder & CTO @ LibeCode{% endblock %}</title>
+  <meta name="description" content="Irvin Sivya is a Computer Science student at the University of Waterloo, co-founder & CTO at LibeCode, a four-year FRC lead programmer, and a 4x hackathon winner.">
+  <meta name="theme-color" content="#0d0c0b">
+  <link rel="canonical" href="https://www.irvinsivya.com/">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="alternate icon" href="{{ url_for('static', filename='favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Irvin Sivya">
+  <meta property="og:title" content="Irvin Sivya — CS @ Waterloo, Co-founder & CTO @ LibeCode">
+  <meta property="og:description" content="Four years as an FRC lead programmer, a summer at a YC startup, four hackathon podiums, and now building LibeCode.">
+  <meta property="og:image" content="https://www.irvinsivya.com/static/images/og.jpg">
+  <meta property="og:url" content="https://www.irvinsivya.com/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero.jpg') }}" fetchpriority="high">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ asset_v }}">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><span></span></div>
+
+  {% include 'partials/header.html' %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'partials/footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/script.js') }}?v={{ asset_v }}" defer></script>
+</body>
+</html>
