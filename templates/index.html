@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% import 'partials/icons.html' as icons %}
+
+{% macro media(folder, item, cls='') -%}
+<div class="media {{ cls }}{% if item.is_logo %} is-logo{% endif %}"{% if item.is_logo %} style="--img:url('{{ url_for('static', filename='images/' + folder + '/' + item.image) }}')"{% endif %}>
+  <img src="{{ url_for('static', filename='images/' + folder + '/' + item.image) }}" alt="{{ item.title }}" loading="lazy" decoding="async">
+</div>
+{%- endmacro %}
+
+{% block content %}
+
+<!-- ============================== HERO ============================== -->
+<section class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div class="hero__text">
+      <p class="eyebrow hero__eyebrow"><span class="pulse" aria-hidden="true"></span>CS @ Waterloo &nbsp;·&nbsp; Co-founder &amp; CTO @ LibeCode</p>
+      <h1 class="hero__title" aria-label="Irvin Sivya">
+        <span class="line" aria-hidden="true"><span>Irvin</span></span>
+        <span class="line" aria-hidden="true"><span>Sivya</span></span>
+      </h1>
+      <p class="hero__tag">Writes control loops for <em>115‑lb robots</em>, trains models on <em>474K records</em>, and is now building a <em>company</em>.</p>
+      <p class="hero__lede">First-year Computer Science student at the University of Waterloo. Four years as an FRC lead programmer, a summer at a YC startup, four hackathon podiums, and since July 2026, co-founder &amp; CTO at LibeCode.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#projects" data-magnetic>See the work {{ icons.down(14) }}</a>
+        <a class="btn btn--ghost" href="{{ url_for('resume') }}" target="_blank" rel="noopener" data-magnetic>Resume {{ icons.arrow(14) }}</a>
+      </div>
+    </div>
+
+    <figure class="hero__media">
+      <div class="hero__frame">
+        <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Irvin Sivya on the microphone at an FRC event with Team 1285" fetchpriority="high" decoding="async">
+      </div>
+      <figcaption class="mono">On the mic at an FRC event · Team 1285</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap">
+    <ul class="stats" aria-label="By the numbers">
+      <li data-reveal style="--i:0"><span class="stats__num"><span data-count="4">0</span>×</span><span class="stats__label">hackathon podiums</span></li>
+      <li data-reveal style="--i:1"><span class="stats__num"><span data-count="2000">0</span>+</span><span class="stats__label">hours as an FRC lead programmer</span></li>
+      <li data-reveal style="--i:2"><span class="stats__num">$<span data-count="300">0</span>K+</span><span class="stats__label">in STEM scholarship offers</span></li>
+      <li data-reveal style="--i:3"><span class="stats__num"><span data-count="99">0</span>%</span><span class="stats__label">highest graduating average in a class of ~460</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== TICKER ============================== -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    {% for _ in range(2) %}
+    <div class="ticker__group">
+      <span>FRC lead programmer</span><i></i>
+      <span>4× hackathon winner</span><i></i>
+      <span>AWS certified</span><i></i>
+      <span>Schulich Leader nominee</span><i></i>
+      <span>Waterloo CS ’31</span><i></i>
+      <span>Co-founder &amp; CTO</span><i></i>
+      <span>Powerlifting records @ 66 kg</span><i></i>
+      <span>CSMC school champion</span><i></i>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ============================== ABOUT ============================== -->
+<section class="about" id="about">
+  <div class="wrap about__grid">
+    <figure class="about__photo" data-reveal>
+      <img src="{{ url_for('static', filename='images/headshot.jpg') }}" alt="Irvin Sivya" loading="lazy" decoding="async">
+      <a class="about__video" href="{{ url_for('static', filename='images/schulich.mp4') }}" target="_blank" rel="noopener">{{ icons.play(12) }} Watch my Schulich Leader video</a>
+    </figure>
+    <div class="about__body">
+      <p class="eyebrow" data-reveal>A bit more</p>
+      <h2 class="about__title" data-reveal style="--i:1">Curious by default, <em>competitive</em> by habit.</h2>
+      <div class="about__copy" data-reveal style="--i:2">
+        <p>I’m from Mississauga and just started Computer Science (co-op) at Waterloo, class of 2031. I graduated from Rick Hansen Secondary with the highest average in my class, a Schulich Leader nomination, and 5s on three AP exams.</p>
+        <p>I spent four years as lead programmer on FRC Teams 1285 and 1241 (2,000+ hours of PID loops, odometry, vision, and path following), interned at SalesPatriot (YC W25) through Harvard’s HUVTSP, and in July 2026 co-founded LibeCode, where I lead engineering.</p>
+      </div>
+      <ul class="now" data-reveal style="--i:3">
+        <li><span class="mono">Now</span><span>Building LibeCode’s MVP end to end</span></li>
+        <li><span class="mono">Reading</span><span>Hands-On Machine Learning (Géron), on a UofT professor’s advice</span></li>
+        <li><span class="mono">Mentoring</span><span>Team 1241’s programming subteam</span></li>
+        <li><span class="mono">Teaching</span><span>Math &amp; STEM with the City of Brampton</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== PROJECTS ============================== -->
+<section class="section" id="projects">
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <span class="sec-head__index mono">01</span>
+      <h2 class="sec-head__title">Projects</h2>
+      <p class="sec-head__sub">From a 115‑lb competition robot to a crime‑risk model trained on 474K records.</p>
+    </header>
+
+    <div class="featured">
+      {% for p in featured %}
+      <article class="feat" data-reveal>
+        {% set primary = p.link or p.github or p.linkedin %}
+        {% if primary %}
+        <a class="feat__media-link" href="{{ primary }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">{{ media('projects', p, 'feat__media') }}</a>
+        {% else %}
+        <div class="feat__media-link">{{ media('projects', p, 'feat__media') }}</div>
+        {% endif %}
+        <div class="feat__body">
+          <p class="mono feat__kicker"><span>{{ '%02d' % p.index }}</span>{{ p.kicker }}</p>
+          <h3 class="feat__title">{{ p.title }}</h3>
+          <p class="feat__desc">{{ p.description }}</p>
+          {% if p.tech_list %}
+          <ul class="chips" aria-label="Built with">
+            {% for t in p.tech_list %}<li>{{ t }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          {% if p.github or p.link or p.linkedin %}
+          <div class="links">
+            {% if p.github %}<a class="link-btn" href="{{ p.github }}" target="_blank" rel="noopener">{{ icons.github(15) }} GitHub</a>{% endif %}
+            {% if p.link %}<a class="link-btn" href="{{ p.link }}" target="_blank" rel="noopener">{{ p.link_label }} {{ icons.arrow(13) }}</a>{% endif %}
+            {% if p.linkedin %}<a class="link-btn" href="{{ p.linkedin }}" target="_blank" rel="noopener">{{ icons.linkedin(15) }} Post</a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if more_projects %}
+    <p class="mono grid-label" data-reveal>More builds</p>
+    <div class="pgrid">
+      {% for p in more_projects %}
+      <article class="card pcard" data-reveal style="--i:{{ loop.index0 % 3 }}">
+        {{ media('projects', p, 'pcard__media') }}
+        <div class="pcard__body">
+          <p class="mono pcard__kicker">{{ p.kicker }}</p>
+          <h3 class="pcard__title">{{ p.title }}</h3>
+          <p class="pcard__desc clamp">{{ p.description }}</p>
+          <button class="more" type="button" aria-expanded="false" hidden>Read more</button>
+          {% if p.tech_list %}<p class="mono pcard__tech">{{ p.tech_list|join(' · ') }}</p>{% endif %}
+          {% if p.github or p.link or p.linkedin %}
+          <div class="links">
+            {% if p.github %}<a class="link-btn" href="{{ p.github }}" target="_blank" rel="noopener">{{ icons.github(14) }} GitHub</a>{% endif %}
+            {% if p.link %}<a class="link-btn" href="{{ p.link }}" target="_blank" rel="noopener">{{ p.link_label }} {{ icons.arrow(12) }}</a>{% endif %}
+            {% if p.linkedin %}<a class="link-btn" href="{{ p.linkedin }}" target="_blank" rel="noopener">{{ icons.linkedin(14) }} Post</a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============================== EXPERIENCE ============================== -->
+<section class="section section--alt" id="experience">
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <span class="sec-head__index mono">02</span>
+      <h2 class="sec-head__title">Experience</h2>
+      <p class="sec-head__sub">Where I’ve built, shipped, and taught.</p>
+    </header>
+
+    <ol class="timeline">
+      {# LibeCode is Irvin's current role (per his resume). It lives in the template rather than
+         the experiences collection; move it to the DB with priority 0 when convenient. #}
+      <li class="tl" data-reveal>
+        <div class="tl__when mono"><span>July 2026 – Present</span><span class="tl__now">Now</span></div>
+        <div class="tl__dot" aria-hidden="true"></div>
+        <div class="tl__card card">
+          <div class="tl__head">
+            <div class="tl__logo is-logo" style="--img:url('{{ url_for('static', filename='images/projects/LibeCodeLogo.png') }}')"><img src="{{ url_for('static', filename='images/projects/LibeCodeLogo.png') }}" alt="" loading="lazy"></div>
+            <div>
+              <h3 class="tl__title">Co-Founder &amp; CTO</h3>
+              <p class="tl__org">LibeCode · Remote</p>
+            </div>
+          </div>
+          <p class="tl__desc">Leading engineering on an unreleased B2B product, advised by professors at the University of Toronto and McMaster. Building the MVP end to end: a Next.js frontend, Node.js/TypeScript services, an in‑house LLM gateway, and network‑isolated E2B sandboxes for running untrusted code.</p>
+        </div>
+      </li>
+      {% for e in experiences %}
+      <li class="tl" data-reveal>
+        <div class="tl__when mono"><span>{{ e.time or '' }}</span></div>
+        <div class="tl__dot" aria-hidden="true"></div>
+        <div class="tl__card card">
+          <div class="tl__head">
+            <div class="tl__logo{% if e.is_logo %} is-logo{% endif %}"{% if e.is_logo %} style="--img:url('{{ url_for('static', filename='images/experiences/' + e.image) }}')"{% endif %}><img src="{{ url_for('static', filename='images/experiences/' + e.image) }}" alt="" loading="lazy"></div>
+            <div>
+              <h3 class="tl__title">{{ e.title }}</h3>
+            </div>
+          </div>
+          <p class="tl__desc">{{ e.description }}</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<!-- ============================== AWARDS ============================== -->
+<section class="section" id="awards">
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <span class="sec-head__index mono">03</span>
+      <h2 class="sec-head__title">Awards</h2>
+      <p class="sec-head__sub">Recognition from the field, the classroom, and the gym.</p>
+    </header>
+
+    <div class="awards">
+      {% for a in awards %}
+      <article class="card award{% if loop.first %} award--wide{% endif %}" data-reveal style="--i:{{ loop.index0 % 3 }}">
+        {{ media('accomplishments', a, 'award__media') }}
+        <div class="award__body">
+          <p class="mono award__kicker">{{ '%02d' % loop.index }}{% if a.year %} · {{ a.year }}{% endif %}</p>
+          <h3 class="award__title">{{ a.title }}</h3>
+          <p class="award__desc clamp">{{ a.description }}</p>
+          <button class="more" type="button" aria-expanded="false" hidden>Read more</button>
+          {% if a.link %}<a class="inline-link" href="{{ a.link }}">See the projects {{ icons.arrow(12) }}</a>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SKILLS ============================== -->
+<section class="section section--alt" id="skills">
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <span class="sec-head__index mono">04</span>
+      <h2 class="sec-head__title">Skills</h2>
+      <p class="sec-head__sub">The stack I reach for.</p>
+    </header>
+  </div>
+
+  {% for group, folder, label in [(skills.programming, 'programming', 'Languages'), (skills.tools, 'tools', 'Frameworks, databases & tools')] %}
+  {% if group %}
+  <div class="skills-row" data-reveal>
+    <div class="wrap"><p class="mono skills-row__label">{{ label }}</p></div>
+    <div class="marquee{% if loop.index is even %} marquee--reverse{% endif %}">
+      <div class="marquee__track">
+        {% for _ in range(2) %}
+        <div class="marquee__group">
+          {% for s in group %}
+          <div class="skill">
+            <span class="skill__icon"><img src="{{ url_for('static', filename='images/skills/' + folder + '/' + s.image) }}" alt="" loading="lazy" decoding="async"></span>
+            <span>{{ s.title }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <div class="wrap skills-extra" data-reveal>
+    <div>
+      <p class="mono skills-row__label">Also fluent in</p>
+      <ul class="chips chips--lg">
+        <li>Pandas</li><li>Scikit-learn</li><li>PostgreSQL</li><li>Node.js</li><li>Expo</li><li>Hugging Face</li><li>WPILib</li><li>AdvantageScope</li><li>Claude Code</li><li>E2B</li>
+      </ul>
+    </div>
+    {% if skills.soft %}
+    <div>
+      <p class="mono skills-row__label">How I work</p>
+      <ul class="chips chips--lg chips--soft">
+        {% for s in skills.soft %}<li>{{ s.title }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============================== BEYOND CODE ============================== -->
+<section class="section" id="beyond">
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <span class="sec-head__index mono">05</span>
+      <h2 class="sec-head__title">Beyond code</h2>
+      <p class="sec-head__sub">Powerlifting records, pickup basketball, math contests, and a well‑worn ML textbook.</p>
+    </header>
+
+    <div class="beyond">
+      {% for e in ecs %}
+      <article class="bey" data-reveal style="--i:{{ loop.index0 % 3 }}" tabindex="0">
+        {{ media('extra_curriculars', e, 'bey__media') }}
+        <div class="bey__overlay">
+          <h3 class="bey__title">{{ e.title }}</h3>
+          <p class="bey__desc">{{ e.description }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CONTACT ============================== -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <p class="mono sec-head__index" data-reveal>06</p>
+    <h2 class="contact__title" data-reveal style="--i:1">Let’s build something <em>real.</em></h2>
+    <p class="contact__sub" data-reveal style="--i:2">Co-op opportunities, research, hackathon teams, or a robot that won’t follow its path. My inbox is open.</p>
+    <div class="contact__actions" data-reveal style="--i:3">
+      <a class="btn btn--primary btn--lg" href="mailto:irvinsivya@gmail.com" data-magnetic>{{ icons.mail(18) }} irvinsivya@gmail.com</a>
+      <a class="btn btn--ghost btn--lg" href="{{ url_for('resume') }}" target="_blank" rel="noopener" data-magnetic>Resume {{ icons.arrow(14) }}</a>
+    </div>
+    <div class="contact__social" data-reveal style="--i:4">
+      <a href="https://github.com/IrvinSivya" target="_blank" rel="noopener">{{ icons.github(18) }} GitHub</a>
+      <a href="{{ linkedin_url }}" target="_blank" rel="noopener">{{ icons.linkedin(18) }} LinkedIn</a>
+      <a href="https://instagram.com/irvs71" target="_blank" rel="noopener">{{ icons.instagram(18) }} Instagram</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

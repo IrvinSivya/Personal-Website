@@ -1,0 +1,47 @@
+{% import 'partials/icons.html' as icons %}
+<header class="site-header" id="site-header">
+  <div class="wrap site-header__inner">
+    <a href="#top" class="brand" aria-label="Irvin Sivya — back to top">
+      <span class="brand__mark">IS</span>
+      <span class="brand__name">Irvin Sivya</span>
+    </a>
+
+    <nav class="nav" aria-label="Sections">
+      <a href="#projects" data-nav="projects">Projects</a>
+      <a href="#experience" data-nav="experience">Experience</a>
+      <a href="#awards" data-nav="awards">Awards</a>
+      <a href="#skills" data-nav="skills">Skills</a>
+      <a href="#beyond" data-nav="beyond">Beyond code</a>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="icon-btn" href="https://github.com/IrvinSivya" target="_blank" rel="noopener" aria-label="GitHub">{{ icons.github(18) }}</a>
+      <a class="icon-btn" href="{{ linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn">{{ icons.linkedin(18) }}</a>
+      <a class="btn btn--small btn--primary" href="{{ url_for('resume') }}" target="_blank" rel="noopener">Resume {{ icons.arrow(13) }}</a>
+      <button class="burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="menu" aria-hidden="true">
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Sections">
+      <a href="#projects" style="--n:1"><span class="menu__num">01</span>Projects</a>
+      <a href="#experience" style="--n:2"><span class="menu__num">02</span>Experience</a>
+      <a href="#awards" style="--n:3"><span class="menu__num">03</span>Awards</a>
+      <a href="#skills" style="--n:4"><span class="menu__num">04</span>Skills</a>
+      <a href="#beyond" style="--n:5"><span class="menu__num">05</span>Beyond code</a>
+      <a href="#contact" style="--n:6"><span class="menu__num">06</span>Contact</a>
+    </nav>
+    <div class="menu__foot">
+      <a href="{{ url_for('resume') }}" target="_blank" rel="noopener" class="btn btn--primary">Resume {{ icons.arrow(13) }}</a>
+      <div class="menu__social">
+        <a href="https://github.com/IrvinSivya" target="_blank" rel="noopener" aria-label="GitHub">{{ icons.github(22) }}</a>
+        <a href="{{ linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn">{{ icons.linkedin(22) }}</a>
+        <a href="https://instagram.com/irvs71" target="_blank" rel="noopener" aria-label="Instagram">{{ icons.instagram(22) }}</a>
+      </div>
+    </div>
+  </div>
+</div>
