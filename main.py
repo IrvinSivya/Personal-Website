@@ -11,7 +11,8 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 MONGO_URI = os.environ.get("MONGO_URI")
-client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=8000)
+# Bounded timeouts: a stalled connection renders empty sections instead of hanging the function.
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=8000, connectTimeoutMS=8000, socketTimeoutMS=8000)
 
 db = client.my_portfolio
 skills_collection = db.skills
@@ -21,7 +22,7 @@ extra_curriculars_collection = db.extra_curriculars
 experiences_collection = db.experiences
 
 # Bump when CSS/JS change so Vercel's edge cache and browsers pick up the new files.
-ASSET_VERSION = "2026.09.22"
+ASSET_VERSION = "2026.09.22c"
 
 # Every old page is now a section on the home page. Old URLs keep working via redirects.
 SECTION_ANCHORS = {
