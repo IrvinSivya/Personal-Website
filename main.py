@@ -1,5 +1,8 @@
+import mimetypes
 import os
 import re
+import time
+from functools import wraps
 
 from dotenv import load_dotenv
 from flask import Flask, redirect, render_template, url_for
@@ -7,12 +10,31 @@ from pymongo import MongoClient
 
 load_dotenv()
 
+# Windows' mimetype registry has no entry for .webp, so the dev server hands it
+# out as application/octet-stream. Vercel's CDN gets this right on its own; this
+# is only so local runs match production.
+mimetypes.add_type("image/webp", ".webp")
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
+# Static files are fingerprint-free (CSS/JS carry ?v=ASSET_VERSION), so an hour keeps
+# repeat visits off the network without making a change take a day to show up. In
+# production Vercel serves /static from its CDN (see vercel.json); this only applies locally.
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
+
+# Timeouts matter here because this runs as a serverless function: without them a slow
+# or unreachable Atlas node leaves the request hanging instead of failing fast (the page
+# then renders with empty sections). connect=False defers the handshake off the import path.
 MONGO_URI = os.environ.get("MONGO_URI")
-# Bounded timeouts: a stalled connection renders empty sections instead of hanging the function.
-client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=8000, connectTimeoutMS=8000, socketTimeoutMS=8000)
+client = MongoClient(
+    MONGO_URI,
+    connect=False,
+    maxPoolSize=5,
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=5000,
+    socketTimeoutMS=10000,
+)
 
 db = client.my_portfolio
 skills_collection = db.skills
@@ -22,7 +44,7 @@ extra_curriculars_collection = db.extra_curriculars
 experiences_collection = db.experiences
 
 # Bump when CSS/JS change so Vercel's edge cache and browsers pick up the new files.
-ASSET_VERSION = "2026.09.22c"
+ASSET_VERSION = "2026.09.22d"
 
 # Every old page is now a section on the home page. Old URLs keep working via redirects.
 SECTION_ANCHORS = {
@@ -62,15 +84,61 @@ PROJECT_LINKS = {
 
 SKILL_DISPLAY_NAMES = {"github": "GitHub", "flask": "Flask", "javascript": "JavaScript"}
 
+LINKEDIN_URL = "https://www.linkedin.com/in/irvin-sivya/"
 
-def _safe_list(cursor_factory):
-    """Run a query; if the database is unreachable render the page without that section
-    instead of a 500."""
+
+# ---------------------------------------------------------------------------
+# Page data cache
+#
+# The content changes when a document is edited by hand, not per request, so every
+# visitor was paying for the same Atlas round trips. Results are held in process for
+# CACHE_TTL seconds; a warm serverless instance then renders with no database call at
+# all. Empty results (a failed query) are never cached, so an outage heals on its own.
+# ---------------------------------------------------------------------------
+
+CACHE_TTL = 300
+_cache = {}
+
+
+def cached(key):
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper():
+            hit = _cache.get(key)
+            if hit and time.time() - hit[0] < CACHE_TTL:
+                return hit[1]
+            value = fn()
+            if value:
+                _cache[key] = (time.time(), value)
+            return value
+        return wrapper
+    return decorator
+
+
+def _fetch(collection):
+    """One round trip per collection; if the database is unreachable, render the page
+    without that section instead of a 500."""
     try:
-        return list(cursor_factory())
+        return list(collection.find())
     except Exception as exc:  # noqa: BLE001
         app.logger.error("database query failed: %s", exc)
         return []
+
+
+# Each raster image under static/images is built with a .webp sibling. Templates only
+# emit a <source> when one exists, because a <source> that 404s is not retried against
+# the <img> - the image would just be missing. The listing is taken once at startup.
+_WEBP_FILES = set()
+for _dirpath, _dirnames, _filenames in os.walk(os.path.join(app.static_folder, "images")):
+    for _name in _filenames:
+        if _name.lower().endswith(".webp"):
+            _rel = os.path.relpath(os.path.join(_dirpath, _name), app.static_folder)
+            _WEBP_FILES.add(_rel.replace(os.sep, "/"))
+
+
+@app.template_global()
+def has_webp(static_path):
+    return static_path in _WEBP_FILES
 
 
 def _link_label(url):
@@ -82,17 +150,25 @@ def _link_label(url):
     return "Live"
 
 
+@cached("projects")
 def get_projects():
-    robot = projects_collection.find_one({"image": "2025_robot.webp"})
+    everything = _fetch(projects_collection)
+
+    # Identify the 2025 FRC robot project by its image so we don't depend on its exact
+    # title. If not found, the order falls back to LibeCode, CrimeWatcher, OJuggle.
+    robot = next((p for p in everything if p.get("image") == "2025_robot.webp"), None)
     featured_titles = ["LibeCode"]
     if robot:
         featured_titles.append(robot["title"])
     featured_titles += ["CrimeWatcher", "OJuggle"]
 
+    by_title = {}
+    for p in everything:
+        by_title.setdefault(p.get("title"), []).append(p)
     featured = []
     for title in featured_titles:
-        featured += _safe_list(lambda t=title: projects_collection.find({"title": t}))
-    rest = _safe_list(lambda: projects_collection.find({"title": {"$nin": featured_titles}}))
+        featured += by_title.get(title, [])
+    rest = [p for p in everything if p.get("title") not in featured_titles]
 
     projects = featured + rest
     for i, p in enumerate(projects):
@@ -107,15 +183,17 @@ def get_projects():
             p["link_label"] = _link_label(p.get("link"))
         # A stale placeholder in the DB points this project's GitHub link at this website's
         # own repo; hide it rather than send recruiters somewhere irrelevant.
-        if p.get("github", "").rstrip("/").endswith("IrvinSivya/Personal-Website"):
+        if (p.get("github") or "").rstrip("/").endswith("IrvinSivya/Personal-Website"):
             p["github"] = None
-    return projects[:4], projects[4:]
+    return projects
 
 
+@cached("awards")
 def get_awards():
-    pinned = _safe_list(lambda: accomplishments_collection.find({"priority": {"$exists": True}}).sort("priority", 1))
-    rest = _safe_list(lambda: accomplishments_collection.find({"priority": {"$exists": False}}))
-    awards = pinned + rest
+    # Pinned awards (those with a 'priority') render first in ascending order; the rest follow.
+    everything = _fetch(accomplishments_collection)
+    pinned = sorted((a for a in everything if "priority" in a), key=lambda a: a["priority"])
+    awards = pinned + [a for a in everything if "priority" not in a]
     for a in awards:
         a["is_logo"] = a.get("image") in LOGO_IMAGES
         m = re.search(r"\b(20\d\d)\b", a.get("title", ""))
@@ -126,18 +204,24 @@ def get_awards():
     return awards
 
 
+@cached("experiences")
 def get_experiences():
-    exps = _safe_list(lambda: experiences_collection.find().sort("priority", 1))
+    exps = sorted(_fetch(experiences_collection), key=lambda e: e.get("priority", 99))
     for e in exps:
         e["title"] = (e.get("title") or "").strip()
         e["is_logo"] = e.get("image") in LOGO_IMAGES
     return exps
 
 
+@cached("skills")
 def get_skills():
+    everything = _fetch(skills_collection)
+
     def group(section):
         seen, out = set(), []
-        for s in _safe_list(lambda: skills_collection.find({"section": section})):
+        for s in everything:
+            if s.get("section") != section:
+                continue
             key = (s.get("title") or "").strip().lower()
             if not key or key in seen:
                 continue
@@ -149,14 +233,12 @@ def get_skills():
     return {"programming": group("programming"), "tools": group("tool"), "soft": group("soft")}
 
 
+@cached("extra_curriculars")
 def get_extra_curriculars():
-    ecs = _safe_list(lambda: extra_curriculars_collection.find())
+    ecs = _fetch(extra_curriculars_collection)
     for e in ecs:
         e["is_logo"] = e.get("image") in LOGO_IMAGES
     return ecs
-
-
-LINKEDIN_URL = "https://www.linkedin.com/in/irvin-sivya/"
 
 
 @app.context_processor
@@ -166,11 +248,11 @@ def inject_globals():
 
 @app.route("/")
 def home():
-    featured, more_projects = get_projects()
+    projects = get_projects()
     return render_template(
         "index.html",
-        featured=featured,
-        more_projects=more_projects,
+        featured=projects[:4],
+        more_projects=projects[4:],
         awards=get_awards(),
         experiences=get_experiences(),
         skills=get_skills(),

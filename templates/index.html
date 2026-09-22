@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% import 'partials/icons.html' as icons %}
+{% from '_macros.html' import pic %}
 
 {% macro media(folder, item, cls='') -%}
 <div class="media {{ cls }}{% if item.is_logo %} is-logo{% endif %}"{% if item.is_logo %} style="--img:url('{{ url_for('static', filename='images/' + folder + '/' + item.image) }}')"{% endif %}>
-  <img src="{{ url_for('static', filename='images/' + folder + '/' + item.image) }}" alt="{{ item.title }}" loading="lazy" decoding="async">
+  {{ pic(folder, item.image, item.title) }}
 </div>
 {%- endmacro %}
 
@@ -33,7 +34,10 @@
 
     <figure class="hero__media">
       <div class="hero__frame">
-        <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Irvin Sivya on the microphone at an FRC event with Team 1285" fetchpriority="high" decoding="async">
+        <picture>
+          <source srcset="{{ url_for('static', filename='images/hero.webp') }}" type="image/webp">
+          <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Irvin Sivya on the microphone at an FRC event with Team 1285" fetchpriority="high" decoding="async">
+        </picture>
       </div>
       <figcaption class="mono">On the mic at an FRC event · Team 1285</figcaption>
     </figure>
@@ -71,7 +75,10 @@
 <section class="about" id="about">
   <div class="wrap about__grid">
     <figure class="about__photo" data-reveal>
-      <img src="{{ url_for('static', filename='images/headshot.jpg') }}" alt="Irvin Sivya" loading="lazy" decoding="async">
+      <picture>
+        <source srcset="{{ url_for('static', filename='images/headshot.webp') }}" type="image/webp">
+        <img src="{{ url_for('static', filename='images/headshot.jpg') }}" alt="Irvin Sivya" loading="lazy" decoding="async">
+      </picture>
       <a class="about__video" href="{{ url_for('static', filename='images/schulich.mp4') }}" target="_blank" rel="noopener">{{ icons.play(12) }} Watch my Schulich Leader video</a>
     </figure>
     <div class="about__body">
@@ -174,7 +181,7 @@
         <div class="tl__dot" aria-hidden="true"></div>
         <div class="tl__card card">
           <div class="tl__head">
-            <div class="tl__logo is-logo" style="--img:url('{{ url_for('static', filename='images/projects/LibeCodeLogo.png') }}')"><img src="{{ url_for('static', filename='images/projects/LibeCodeLogo.png') }}" alt="" loading="lazy"></div>
+            <div class="tl__logo is-logo" style="--img:url('{{ url_for('static', filename='images/projects/LibeCodeLogo.png') }}')">{{ pic('projects', 'LibeCodeLogo.png', '') }}</div>
             <div>
               <h3 class="tl__title">Co-Founder &amp; CTO</h3>
               <p class="tl__org"><a class="tl__link" href="https://libecode.com/" target="_blank" rel="noopener">LibeCode</a> · Remote</p>
@@ -189,7 +196,7 @@
         <div class="tl__dot" aria-hidden="true"></div>
         <div class="tl__card card">
           <div class="tl__head">
-            <div class="tl__logo{% if e.is_logo %} is-logo{% endif %}"{% if e.is_logo %} style="--img:url('{{ url_for('static', filename='images/experiences/' + e.image) }}')"{% endif %}><img src="{{ url_for('static', filename='images/experiences/' + e.image) }}" alt="" loading="lazy"></div>
+            <div class="tl__logo{% if e.is_logo %} is-logo{% endif %}"{% if e.is_logo %} style="--img:url('{{ url_for('static', filename='images/experiences/' + e.image) }}')"{% endif %}>{{ pic('experiences', e.image, '') }}</div>
             <div>
               <h3 class="tl__title">{{ e.title }}</h3>
             </div>
@@ -248,7 +255,7 @@
         <div class="marquee__group">
           {% for s in group %}
           <div class="skill">
-            <span class="skill__icon"><img src="{{ url_for('static', filename='images/skills/' + folder + '/' + s.image) }}" alt="" loading="lazy" decoding="async"></span>
+            <span class="skill__icon">{{ pic('skills/' + folder, s.image, '', lazy=false) }}</span>
             <span>{{ s.title }}</span>
           </div>
           {% endfor %}
