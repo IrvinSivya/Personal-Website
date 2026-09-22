@@ -21,13 +21,49 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero.jpg') }}" fetchpriority="high">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='data/land-mask.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ asset_v }}">
-  <script>document.documentElement.classList.add('js');</script>
+  <script>
+    /* Decide before first paint whether the flight intro plays: once per session, never for
+       reduced motion or deep links. If intro.js never starts, the site shows itself anyway. */
+    (function () {
+      var h = document.documentElement;
+      h.classList.add('js');
+      try {
+        var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var seen = window.sessionStorage.getItem('intro-seen');
+        if (!rm && !seen && !location.hash) {
+          h.classList.add('intro-pending');
+          setTimeout(function () {
+            if (!window.__introStarted) { h.classList.remove('intro-pending'); h.classList.add('hero-go'); }
+          }, 4000);
+        } else {
+          h.classList.add('hero-go');
+        }
+      } catch (e) { h.classList.add('hero-go'); }
+    })();
+  </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <div class="grain" aria-hidden="true"></div>
   <div class="progress" aria-hidden="true"><span></span></div>
+
+  <div class="intro" id="intro" aria-hidden="true">
+    <canvas class="intro__canvas" data-mask="{{ url_for('static', filename='data/land-mask.png') }}"></canvas>
+    <p class="intro__brand mono">Irvin Sivya · Portfolio</p>
+    <div class="intro__hud">
+      <p class="eyebrow"><span class="pulse"></span>Flight IS‑2031</p>
+      <h2 class="intro__title" data-hud="title">En route to <em>Waterloo</em>.</h2>
+      <dl class="intro__meta">
+        <div><dt>From</dt><dd data-hud="from">—</dd></div>
+        <div><dt>Arrival</dt><dd>Waterloo, ON<span class="intro__coords"> · 43.47° N, 80.54° W</span></dd></div>
+        <div><dt>Distance</dt><dd data-hud="dist">—</dd></div>
+        <div><dt>Status</dt><dd data-hud="status">Boarding</dd></div>
+      </dl>
+    </div>
+    <button class="intro__skip mono" type="button">Skip intro →</button>
+  </div>
 
   {% include 'partials/header.html' %}
 
@@ -37,6 +73,7 @@
 
   {% include 'partials/footer.html' %}
 
+  <script src="{{ url_for('static', filename='js/intro.js') }}?v={{ asset_v }}" defer></script>
   <script src="{{ url_for('static', filename='js/script.js') }}?v={{ asset_v }}" defer></script>
 </body>
 </html>
