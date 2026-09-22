@@ -1176,6 +1176,7 @@ html.intro-pending .intro, .intro.is-active { display: block; }
 }
 .intro__title em { color: var(--accent); }
 .intro.is-landed .intro__title { animation: fadeUp 0.6s var(--ease); }
+.intro__meta [data-hud="dist"] { white-space: nowrap; }   /* never orphan "to go" */
 .intro__meta {
   margin: 0;
   letter-spacing: 0.12em;
@@ -1215,6 +1216,16 @@ html.intro-pending .intro, .intro.is-active { display: block; }
 }
 /* Debug stills (?introT=): show end states immediately */
 .intro.is-frozen, .intro.is-frozen * { animation-duration: 0s !important; animation-delay: 0s !important; }
+
+/* Warm light behind the aperture; sits under the overlay, so it only shows through the hole */
+.intro-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 94;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--px, 50%) var(--py, 50%), rgba(255, 150, 95, 0.55) 0, rgba(255, 90, 31, 0.28) 6vmin, rgba(255, 90, 31, 0.08) 18vmin, transparent 40vmin);
+}
 
 /* The Waterloo dot that flies into the hero's "CS @ Waterloo" marker */
 .intro-beacon {
