@@ -55,6 +55,11 @@ PROJECT_KICKERS = {
     "Student Skill Swap": "Hackathon · Innovative Hacks 2.0",
 }
 
+# Links that live in code rather than the database (override or fill in a project's `link`).
+PROJECT_LINKS = {
+    "LibeCode": ("https://libecode.com/", "libecode.com"),
+}
+
 SKILL_DISPLAY_NAMES = {"github": "GitHub", "flask": "Flask", "javascript": "JavaScript"}
 
 
@@ -95,7 +100,11 @@ def get_projects():
         p["is_logo"] = p.get("image") in LOGO_IMAGES
         p["kicker"] = PROJECT_KICKERS.get(p.get("title", ""), (p.get("tech") or "").split(",")[0])
         p["tech_list"] = [t.strip() for t in (p.get("tech") or "").split(",") if t.strip()]
-        p["link_label"] = _link_label(p.get("link"))
+        override = PROJECT_LINKS.get(p.get("title", ""))
+        if override:
+            p["link"], p["link_label"] = override
+        else:
+            p["link_label"] = _link_label(p.get("link"))
         # A stale placeholder in the DB points this project's GitHub link at this website's
         # own repo; hide it rather than send recruiters somewhere irrelevant.
         if p.get("github", "").rstrip("/").endswith("IrvinSivya/Personal-Website"):
