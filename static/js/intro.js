@@ -15,7 +15,8 @@
    A 2D canvas draws the route, the plane and its shadow, pins and tags. Plays once per session,
    skippable (click, Esc, Space, Enter), never for reduced motion or deep links, and falls back to
    simply showing the site when WebGL2 is missing, software-rendered, or the textures are slow.
-   Debug: ?intro forces a replay; &introFrom=LHR picks the origin; &introT=2.5 freezes time. */
+   The flight departs from Mumbai.
+   Debug: ?intro forces a replay; &introFrom=LHR tests another origin; &introT=2.5 freezes time. */
 (() => {
   const html = document.documentElement;
   const overlay = document.getElementById('intro');
@@ -113,22 +114,9 @@
     { code: 'SIN', name: 'Singapore', lat: 1.36, lon: 103.99 },
     { code: 'CPT', name: 'Cape Town', lat: -33.97, lon: 18.6 },
   ];
-  // The flight comes from roughly where the visitor is. The zone never leaves the page.
-  // Toronto, New York and Chicago are left out on purpose: the hop is too short to show a flight.
-  const TZ_ORIGIN = {
-    'America/Los_Angeles': 'SFO', 'America/Vancouver': 'SFO', 'America/Sao_Paulo': 'GRU',
-    'Europe/London': 'LHR', 'Europe/Dublin': 'LHR', 'Europe/Paris': 'CDG', 'Europe/Berlin': 'CDG',
-    'Europe/Amsterdam': 'CDG', 'Europe/Madrid': 'CDG', 'Europe/Zurich': 'CDG', 'Asia/Dubai': 'DXB',
-    'Asia/Kolkata': 'BOM', 'Asia/Calcutta': 'BOM', 'Asia/Singapore': 'SIN', 'Asia/Kuala_Lumpur': 'SIN',
-    'Asia/Shanghai': 'SIN', 'Asia/Hong_Kong': 'SIN', 'Asia/Tokyo': 'HND', 'Asia/Seoul': 'HND',
-    'Australia/Sydney': 'SYD', 'Australia/Melbourne': 'SYD', 'Africa/Johannesburg': 'CPT',
-  };
-  let tz = '';
-  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* old Intl */ }
+  // The flight always departs from India (Mumbai). Other origins exist only for testing via ?introFrom=.
   const forced = (params.get('introFrom') || '').toUpperCase();
-  const origin = ORIGINS.find((o) => o.code === forced)
-    || ORIGINS.find((o) => o.code === TZ_ORIGIN[tz])
-    || ORIGINS[Math.floor(Math.random() * ORIGINS.length)];
+  const origin = ORIGINS.find((o) => o.code === forced) || ORIGINS.find((o) => o.code === 'BOM');
 
   const A = toVec(origin.lat, origin.lon);
   const B = toVec(DEST.lat, DEST.lon);
