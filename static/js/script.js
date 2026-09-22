@@ -95,16 +95,20 @@
     };
     requestAnimationFrame(step);
   };
-  if (reduceMotion || !hasIO) {
-    counters.forEach((el) => { el.textContent = fmt(Number(el.dataset.count)); });
-  } else {
+  const startCounters = () => {
+    if (reduceMotion || !hasIO) {
+      counters.forEach((el) => { el.textContent = fmt(Number(el.dataset.count)); });
+      return;
+    }
     const co = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         if (en.isIntersecting) { runCounter(en.target); co.unobserve(en.target); }
       });
     }, { threshold: 0.5 });
     counters.forEach((el) => co.observe(el));
-  }
+  };
+  // Don't count under the intro overlay; wait until it has handed off to the hero.
+  (window.introPromise || Promise.resolve()).then(startCounters);
 
   /* ---------- Hero spotlight follows the cursor ---------- */
   const hero = d.querySelector('.hero');
