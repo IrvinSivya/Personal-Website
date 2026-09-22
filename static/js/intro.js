@@ -644,7 +644,10 @@
   const SUN_KEY = norm([-0.80, 0.48, 0.30]);     // cruise: a side key with a visible terminator
   const SUN_DUSK = norm([0.12, 0.30, -0.95]);    // below the horizon ahead: night landing, sunrise on the limb
 
+  let lastT = null;
+  let glow = null;                                   // warm light behind the aperture
   const render = (t) => {
+    lastT = t;
     const fade = smooth(seg(t, ...T.fadeIn));
     const boot = sineIO(seg(t, ...T.boot));
     const u = smooth(seg(t, ...T.fly));
@@ -724,6 +727,17 @@
       ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
       if (!beaconOn) { beaconOn = true; flyBeacon({ x: cx, y: cy }); }
+      // Behind the overlay (so only visible through the hole): a warm bloom that fades as the
+      // site appears, so the first frames of the aperture are light, not an empty black disc.
+      if (!glow) {
+        glow = document.createElement('div');
+        glow.className = 'intro-glow';
+        glow.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(glow);
+      }
+      glow.style.setProperty('--px', `${cx}px`);
+      glow.style.setProperty('--py', `${cy}px`);
+      glow.style.opacity = String((1 - smooth(seg(pk, 0.25, 0.75))) * 0.9);
     }
 
     // ---- HUD
@@ -759,7 +773,7 @@
     if (lose) lose.loseContext();
     glCanvas.width = glCanvas.height = fx.width = fx.height = 1;
   };
-  const finish = () => { overlay.remove(); cleanup(); resolveDone(); };
+  const finish = () => { overlay.remove(); if (glow) glow.remove(); cleanup(); resolveDone(); };
   const skip = () => {
     if (leaving) return;
     leaving = true;
@@ -768,6 +782,7 @@
     dropBeacon();
     resolveDone();
     overlay.classList.add('is-leaving');
+    if (glow) glow.style.opacity = '0';
     setTimeout(finish, 800);
   };
 
@@ -809,9 +824,10 @@
   }, on);
   glCanvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); skip(); }, on);
 
+  const relayout = () => { layout(); if (!dead && lastT !== null) render(lastT); };
   layout();
-  if ('ResizeObserver' in window) { ro = new ResizeObserver(() => layout()); ro.observe(overlay); }
-  window.addEventListener('resize', layout, on);   // a devicePixelRatio change doesn't resize the overlay
+  if ('ResizeObserver' in window) { ro = new ResizeObserver(relayout); ro.observe(overlay); }
+  window.addEventListener('resize', relayout, on);   // a devicePixelRatio change doesn't resize the overlay
 
   const loadTexture = (url, unit, mip) => new Promise((resolve, reject) => {
     const img = new Image();
