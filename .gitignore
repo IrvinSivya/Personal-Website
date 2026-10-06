@@ -2,3 +2,5 @@
 __pycache__/
 .vscode/
 .claude/
+# The resume has personal contact details: it lives in MongoDB (scripts/upload_resume.py), never here.
+*.pdf

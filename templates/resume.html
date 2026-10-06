@@ -1,0 +1,19 @@
+{% extends '_page.html' %}
+{% import 'partials/icons.html' as icons %}
+{% from 'partials/resume_form.html' import resume_form %}
+
+{% block title %}Request my resume — Irvin Sivya{% endblock %}
+
+{% block page %}
+{% if sent %}
+  <span class="rq__check">{{ icons.check(22) }}</span>
+  <h1 class="rq__title">Request <em>sent.</em></h1>
+  <p class="rq__lede">Thanks. Once I’ve approved it, I’ll send a link to <strong>{{ form.email }}</strong>. It stays live for {{ resume_link_days }} days.</p>
+  <a class="btn btn--ghost" href="{{ url_for('home') }}">Back to the site</a>
+{% else %}
+  <p class="mono rq__kicker">Resume</p>
+  <h1 class="rq__title">Request my <em>resume.</em></h1>
+  <p class="rq__lede">It has my phone number and email on it, so I send it out myself. Leave your details and I’ll email you a link.</p>
+  {{ resume_form('rqp', form, errors, error) }}
+{% endif %}
+{% endblock %}

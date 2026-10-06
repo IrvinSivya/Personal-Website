@@ -1,0 +1,22 @@
+{% import 'partials/icons.html' as icons %}
+{% from 'partials/resume_form.html' import resume_form %}
+
+{# Every Resume button on the home page opens this (static/js/script.js). The buttons are
+   still real links to /resume, so without JavaScript they land on the same form there. #}
+<dialog class="rq-dialog" id="resume-dialog" aria-labelledby="rq-title">
+  <div class="rq">
+    <button class="icon-btn rq__close" type="button" aria-label="Close" data-close>{{ icons.close(18) }}</button>
+    <div class="rq__ask">
+      <p class="mono rq__kicker">Resume</p>
+      <h2 class="rq__title" id="rq-title">Request my <em>resume.</em></h2>
+      <p class="rq__lede">It has my phone number and email on it, so I send it out myself. Leave your details and I’ll email you a link.</p>
+      {{ resume_form('rq', autofocus=true) }}
+    </div>
+    <div class="rq__done" hidden>
+      <span class="rq__check">{{ icons.check(22) }}</span>
+      <h2 class="rq__title">Request <em>sent.</em></h2>
+      <p class="rq__lede">Thanks. Once I’ve approved it, I’ll send a link to <strong data-sent-to></strong>. It stays live for {{ resume_link_days }} days.</p>
+      <button class="btn btn--ghost" type="button" data-close>Close</button>
+    </div>
+  </div>
+</dialog>

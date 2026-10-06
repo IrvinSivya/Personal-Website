@@ -1,0 +1,38 @@
+{% import 'partials/icons.html' as icons %}
+
+{# The resume request form. The home page shows it in a dialog and posts it with fetch
+   (static/js/script.js); /resume renders it as a plain form for no-JS visitors and old links.
+   `prefix` keeps element ids unique when both could be on one page. #}
+{% macro resume_form(prefix, form={}, errors={}, error=None, autofocus=false) %}
+<form class="rq__form" action="{{ url_for('resume') }}" method="post" novalidate data-resume-form>
+  <div class="field{% if errors.name %} has-error{% endif %}">
+    <label class="field__label" for="{{ prefix }}-name">Name</label>
+    <input id="{{ prefix }}-name" name="name" type="text" autocomplete="name" maxlength="100" required
+           value="{{ form.name }}" aria-describedby="{{ prefix }}-name-error"
+           {%- if errors.name %} aria-invalid="true"{% endif %}{% if autofocus %} autofocus{% endif %}>
+    <p class="field__error" id="{{ prefix }}-name-error" data-error="name">{{ errors.name }}</p>
+  </div>
+  <div class="field{% if errors.email %} has-error{% endif %}">
+    <label class="field__label" for="{{ prefix }}-email">Email</label>
+    <input id="{{ prefix }}-email" name="email" type="email" autocomplete="email" maxlength="254" required
+           value="{{ form.email }}" aria-describedby="{{ prefix }}-email-error"
+           {%- if errors.email %} aria-invalid="true"{% endif %}>
+    <p class="field__error" id="{{ prefix }}-email-error" data-error="email">{{ errors.email }}</p>
+  </div>
+  <div class="field">
+    <label class="field__label" for="{{ prefix }}-note">Note <span>Optional</span></label>
+    <textarea id="{{ prefix }}-note" name="note" rows="3" maxlength="1000"
+              placeholder="Who you are, or the role you're hiring for">{{ form.note }}</textarea>
+  </div>
+  {# Honeypot: hidden from people, irresistible to form-filling bots. #}
+  <div class="rq__hp" aria-hidden="true">
+    <label for="{{ prefix }}-company">Company</label>
+    <input id="{{ prefix }}-company" name="company" type="text" tabindex="-1" autocomplete="off">
+  </div>
+  <p class="rq__alert" role="alert" data-error="form"{% if not error %} hidden{% endif %}>{{ error or '' }}</p>
+  <div class="rq__foot">
+    <p class="rq__fine">Your email is only used to send you the link.</p>
+    <button class="btn btn--primary" type="submit">Send request {{ icons.arrow(13) }}</button>
+  </div>
+</form>
+{% endmacro %}

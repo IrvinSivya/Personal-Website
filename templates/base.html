@@ -6,10 +6,13 @@
   <title>{% block title %}Irvin Sivya — CS @ Waterloo, Co-founder & CTO @ LibeCode{% endblock %}</title>
   <meta name="description" content="Irvin Sivya is a Computer Science student at the University of Waterloo, co-founder & CTO at LibeCode, a four-year FRC lead programmer, and a 4x hackathon winner.">
   <meta name="theme-color" content="#0d0c0b">
-  <link rel="canonical" href="https://www.irvinsivya.com/">
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
   <link rel="alternate icon" href="{{ url_for('static', filename='favicon.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  {#- Everything in head_meta, intro_boot, chrome and intro_script is home-page only; the resume
+      request pages (templates/_page.html) swap in noindex and a slim header instead. #}
+  {% block head_meta %}
+  <link rel="canonical" href="https://www.irvinsivya.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Irvin Sivya">
   <meta property="og:title" content="Irvin Sivya — CS @ Waterloo, Co-founder & CTO @ LibeCode">
@@ -17,19 +20,23 @@
   <meta property="og:image" content="https://www.irvinsivya.com/static/images/og.jpg">
   <meta property="og:url" content="https://www.irvinsivya.com/">
   <meta name="twitter:card" content="summary_large_image">
+  {% endblock %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  {% block preload %}
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero.webp') }}" type="image/webp" fetchpriority="high">
   <link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-land.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-lights.webp') }}" type="image/webp">
+  {% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ asset_v }}">
   <script>
+    document.documentElement.classList.add('js');
+    {% block intro_boot %}
     /* Decide before first paint whether the flight intro plays: once per session, never for
        reduced motion or deep links. If intro.js never starts, the site shows itself anyway. */
     (function () {
       var h = document.documentElement;
-      h.classList.add('js');
       try {
         var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         var seen = window.sessionStorage.getItem('intro-seen');
@@ -44,6 +51,7 @@
         }
       } catch (e) { h.classList.add('hero-go'); }
     })();
+    {% endblock %}
   </script>
 </head>
 <body>
@@ -51,6 +59,7 @@
   <div class="grain" aria-hidden="true"></div>
   <div class="progress" aria-hidden="true"><span></span></div>
 
+  {% block chrome %}
   <div class="intro" id="intro">
     <canvas class="intro__gl" aria-hidden="true" data-land="{{ url_for('static', filename='data/earth-land.png') }}" data-lights="{{ url_for('static', filename='data/earth-lights.webp') }}"></canvas>
     <canvas class="intro__fx" aria-hidden="true"></canvas>
@@ -68,6 +77,7 @@
   <span class="intro-beacon" aria-hidden="true"></span>
 
   {% include 'partials/header.html' %}
+  {% endblock %}
 
   <main id="main">
     {% block content %}{% endblock %}
@@ -75,7 +85,9 @@
 
   {% include 'partials/footer.html' %}
 
+  {% block intro_script %}
   <script src="{{ url_for('static', filename='js/intro.js') }}?v={{ asset_v }}" defer></script>
+  {% endblock %}
   <script src="{{ url_for('static', filename='js/script.js') }}?v={{ asset_v }}" defer></script>
 </body>
 </html>

@@ -1,0 +1,25 @@
+{% extends '_page.html' %}
+
+{# Dead ends of the resume flow: an expired or invalid download link, an expired review
+   link (only Irvin sees those), or no PDF uploaded yet. #}
+
+{% block title %}Resume link — Irvin Sivya{% endblock %}
+
+{% block page %}
+<p class="mono rq__kicker">Resume</p>
+{% if state == 'expired' %}
+  <h1 class="rq__title">This link has <em>expired.</em></h1>
+  <p class="rq__lede">Resume links work for {{ resume_link_days }} days. Request it again and I’ll send you a fresh one.</p>
+  <a class="btn btn--primary" href="{{ url_for('resume') }}">Request it again</a>
+{% elif state == 'review-expired' %}
+  <h1 class="rq__title">This review link has <em>expired.</em></h1>
+  <p class="rq__lede">Review links work for 30 days. The request is still saved in the <code>resume_requests</code> collection, and the person can always ask again.</p>
+{% elif state == 'unavailable' %}
+  <h1 class="rq__title">The resume isn’t <em>available</em> right now.</h1>
+  <p class="rq__lede">Your link is fine. Try again in a few minutes, or email me at <a class="inline-link" href="mailto:irvinsivya@gmail.com">irvinsivya@gmail.com</a>.</p>
+{% else %}
+  <h1 class="rq__title">This link doesn’t <em>work.</em></h1>
+  <p class="rq__lede">It may have been cut off when it was copied, or access was switched off. You can request the resume again.</p>
+  <a class="btn btn--primary" href="{{ url_for('resume') }}">Request the resume</a>
+{% endif %}
+{% endblock %}

@@ -23,7 +23,7 @@
       <p class="hero__lede">First-year Computer Science student at the University of Waterloo. Four years as an FRC lead programmer, a summer at a YC startup, and since July 2026, co-founder &amp; CTO at LibeCode.</p>
       <div class="hero__cta">
         <a class="btn btn--primary" href="#projects" data-magnetic>See the work {{ icons.down(14) }}</a>
-        <a class="btn btn--ghost" href="{{ url_for('resume') }}" target="_blank" rel="noopener" data-magnetic>Resume {{ icons.arrow(14) }}</a>
+        <a class="btn btn--ghost" href="{{ url_for('resume') }}" data-resume data-magnetic>Resume {{ icons.arrow(14) }}</a>
       </div>
       <ul class="hero__proof" aria-label="Highlights">
         <li><strong>$300K+</strong> in STEM scholarship offers</li>
@@ -316,7 +316,7 @@
     <p class="contact__sub" data-reveal style="--i:2">Co-op opportunities, research, hackathon teams, or a robot that won’t follow its path. My inbox is open.</p>
     <div class="contact__actions" data-reveal style="--i:3">
       <a class="btn btn--primary btn--lg" href="mailto:irvinsivya@gmail.com" data-magnetic>{{ icons.mail(18) }} irvinsivya@gmail.com</a>
-      <a class="btn btn--ghost btn--lg" href="{{ url_for('resume') }}" target="_blank" rel="noopener" data-magnetic>Resume {{ icons.arrow(14) }}</a>
+      <a class="btn btn--ghost btn--lg" href="{{ url_for('resume') }}" data-resume data-magnetic>Resume {{ icons.arrow(14) }}</a>
     </div>
     <div class="contact__social" data-reveal style="--i:4">
       <a href="https://github.com/IrvinSivya" target="_blank" rel="noopener">{{ icons.github(18) }} GitHub</a>
@@ -325,5 +325,7 @@
     </div>
   </div>
 </section>
+
+{% include 'partials/resume_dialog.html' %}
 
 {% endblock %}

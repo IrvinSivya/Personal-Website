@@ -158,4 +158,82 @@
       btn.setAttribute('aria-expanded', String(open));
     });
   });
+
+  /* ---------- Resume request dialog ----------
+     The resume isn't public, so every Resume button opens a request form. The buttons are
+     still links to /resume, which renders the same form if this never runs. */
+  const rq = d.getElementById('resume-dialog');
+  if (rq && typeof rq.showModal === 'function') {
+    const form = rq.querySelector('[data-resume-form]');
+    const ask = rq.querySelector('.rq__ask');
+    const done = rq.querySelector('.rq__done');
+    const submit = form.querySelector('[type="submit"]');
+
+    const setError = (name, msg) => {
+      const el = form.querySelector(`[data-error="${name}"]`);
+      if (!el) return;
+      el.textContent = msg || '';
+      if (name === 'form') { el.hidden = !msg; return; }
+      const field = el.closest('.field');
+      const input = field.querySelector('input, textarea');
+      field.classList.toggle('has-error', Boolean(msg));
+      if (msg) input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
+    };
+    const clearErrors = () => ['name', 'email', 'form'].forEach((n) => setError(n, ''));
+    form.addEventListener('input', (e) => setError(e.target.name, ''));
+
+    d.querySelectorAll('a[data-resume]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        // Let modified clicks open /resume in a new tab as usual.
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        rq.showModal();
+      });
+    });
+
+    // A click on the dialog element itself is a click on the backdrop around the panel.
+    rq.addEventListener('click', (e) => {
+      if (e.target === rq || e.target.closest('[data-close]')) rq.close();
+    });
+    rq.addEventListener('close', () => {
+      if (done.hidden) return;
+      form.reset();
+      clearErrors();
+      done.hidden = true;
+      ask.hidden = false;
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (submit.disabled) return;
+      clearErrors();
+      submit.disabled = true;
+      form.setAttribute('aria-busy', 'true');
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        const data = await res.json();
+        if (data.ok) {
+          rq.querySelector('[data-sent-to]').textContent = form.elements.email.value.trim();
+          ask.hidden = true;
+          done.hidden = false;
+          done.querySelector('[data-close]').focus();
+        } else {
+          Object.entries(data.errors || {}).forEach(([name, msg]) => setError(name, msg));
+          if (data.error) setError('form', data.error);
+          const bad = form.querySelector('[aria-invalid="true"]');
+          if (bad) bad.focus();
+        }
+      } catch (err) {
+        setError('form', 'Couldn’t reach the server. Check your connection and try again.');
+      } finally {
+        submit.disabled = false;
+        form.removeAttribute('aria-busy');
+      }
+    });
+  }
 })();

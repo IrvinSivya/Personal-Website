@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{# Layout for the small standalone pages around the resume request flow: no intro, no
+   section nav, not indexed. #}
+
+{% block head_meta %}
+  <meta name="robots" content="noindex">
+{% endblock %}
+{% block preload %}{% endblock %}
+{% block intro_boot %}{% endblock %}
+
+{% block chrome %}
+<header class="site-header" id="site-header">
+  <div class="wrap site-header__inner">
+    <a href="{{ url_for('home') }}" class="brand" aria-label="Irvin Sivya — home">
+      <span class="brand__mark">IS</span>
+      <span class="brand__name">Irvin Sivya</span>
+    </a>
+    <a class="btn btn--small btn--ghost" href="{{ url_for('home') }}">← Back to the site</a>
+  </div>
+</header>
+{% endblock %}
+
+{% block intro_script %}{% endblock %}
+
+{% block content %}
+<section class="page" id="top">
+  <div class="wrap page__inner">
+    <div class="rq rq--page">
+      {% block page %}{% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}

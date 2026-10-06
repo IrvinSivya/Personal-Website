@@ -1,0 +1,38 @@
+{% extends '_page.html' %}
+{% import 'partials/icons.html' as icons %}
+
+{# Irvin's page: the link in each "Resume request from ..." email lands here. The buttons
+   POST, so an email client prefetching the link can't approve anything. #}
+
+{% block title %}Resume request from {{ req.name }}{% endblock %}
+
+{% block page %}
+<p class="mono rq__kicker">Resume request · <span class="rq__status rq__status--{{ req.status }}">{{ req.status }}</span></p>
+<h1 class="rq__title">{{ req.name }}</h1>
+
+<dl class="rq__facts">
+  <div><dt>Email</dt><dd><a href="mailto:{{ req.email }}">{{ req.email }}</a></dd></div>
+  <div><dt>Asked</dt><dd>{{ req.created_at | utc }}</dd></div>
+  {% if req.note %}<div><dt>Note</dt><dd class="rq__note">{{ req.note }}</dd></div>{% endif %}
+  {% if req.decided_at %}<div><dt>{{ 'Approved' if req.status == 'approved' else 'Denied' }}</dt><dd>{{ req.decided_at | utc }}</dd></div>{% endif %}
+  {% if req.status == 'approved' %}<div><dt>Opened</dt><dd>{{ req.downloads or 0 }} time{{ '' if req.downloads == 1 else 's' }}</dd></div>{% endif %}
+</dl>
+
+{% if notice %}<p class="rq__notice" role="status">{{ notice }}</p>{% endif %}
+
+<form class="rq__actions" method="post">
+  {% if req.status != 'approved' %}
+  <button class="btn btn--primary" type="submit" name="action" value="approve">Approve and email link {{ icons.arrow(13) }}</button>
+  {% endif %}
+  {% if req.status == 'pending' %}
+  <button class="btn btn--ghost" type="submit" name="action" value="deny">Deny</button>
+  {% elif req.status == 'approved' %}
+  <button class="btn btn--ghost" type="submit" name="action" value="deny">Revoke access</button>
+  {% endif %}
+</form>
+{% if req.status == 'approved' %}
+<p class="rq__fine">Their link expires on its own {{ link_days }} days after approval. Revoking stops it now.</p>
+{% else %}
+<p class="rq__fine">Approving emails {{ req.email }} a link that works for {{ link_days }} days. Denying sends nothing.</p>
+{% endif %}
+{% endblock %}
