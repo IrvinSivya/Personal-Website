@@ -427,6 +427,8 @@ html.js.hero-go .graph .node:not(.node--root), html.js.hero-go .wires { animatio
   .graph { display: flex; flex-direction: column; gap: 34px; padding-top: 20px; }
   .graph__top, .graph__bottom, .col { display: contents; }
   .graph [data-id="root"] { order: 1; }
+  .root__body { grid-template-columns: minmax(0, 1fr) min(240px, 34%); }
+  .root__text { align-self: center; }
   .graph .stats { order: 2; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .graph [data-id="robots"] { order: 3; }
   .graph [data-id="projects"] { order: 4; }
