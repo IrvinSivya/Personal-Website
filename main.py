@@ -53,7 +53,7 @@ resume_requests_collection = db.resume_requests
 resume_files_collection = db.resume_files
 
 # Bump when CSS/JS change so Vercel's edge cache and browsers pick up the new files.
-ASSET_VERSION = "2026.11.16"
+ASSET_VERSION = "2026.11.16b"
 
 # Every old page is now a section on the home page. Old URLs keep working via redirects.
 SECTION_ANCHORS = {
