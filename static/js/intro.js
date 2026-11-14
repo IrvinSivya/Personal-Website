@@ -247,6 +247,8 @@
   const vec3 ACC  = vec3(1.0, 0.353, 0.122);
   const vec3 AMBER = vec3(1.0, 0.62, 0.34);
   const vec3 BG   = vec3(0.051, 0.047, 0.043);
+  const vec3 PAPER = vec3(0.969, 0.965, 0.949);
+  const vec3 INK   = vec3(0.075, 0.075, 0.075);
 
   float hash13(vec3 p) { p = fract(p * 0.1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
   vec2 toUV(float lat, float lon) { return vec2((lon + 180.0) / 360.0, (90.0 - lat) / 180.0); }
@@ -387,8 +389,14 @@
       vec3 n = hit ? ro + rd * t : limbN;
       surf = shade(n, rd, t, atmoCol);
     }
-    vec3 col = mix(sky, surf, limbCov);
-    col = mix(BG, col, uFade);
+    // Black and white. Space is the page's paper with the atmosphere as a soft grey edge; the
+    // globe itself stays dark, an ink sphere whose land dots and city lights read as white.
+    // The colour work above still decides what is light and dark.
+    const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
+    vec3 skyBW = mix(PAPER, INK, pow(clamp(dot(sky, LUMA) * 0.55, 0.0, 1.0), 0.9));
+    vec3 surfBW = mix(INK, PAPER, pow(clamp(dot(surf, LUMA) * 1.2, 0.0, 1.0), 0.85));
+    vec3 col = mix(skyBW, surfBW, limbCov);
+    col = mix(PAPER, col, uFade);
     col += (hash13(vec3(gl_FragCoord.xy, uTime)) - 0.5) / 255.0;       // dither
     outColor = vec4(col, 1.0);
   }`;
@@ -465,10 +473,14 @@
   } catch (e) { /* no Intl time zones */ }
 
   /* ------------------------------------------------------------ 2D effects */
-  const ACC = '255, 90, 31';
-  const BONE = '242, 237, 228';
+  // Black and white: marks are paper-white with an ink edge, so they read on the dark globe and
+  // on the paper around it. Tags are paper boxes with ink text.
+  const INKC = '19, 19, 19';
+  const PAPER = '247, 246, 242';
+  const ACC = PAPER;
+  const BONE = PAPER;
   const PLANE = new Path2D('M12 1.6c.9 0 1.5.9 1.5 2.2v5.1l8.3 4.9v2l-8.3-2.5v5.1l2.3 1.7V22L12 21l-3.8 1v-1.9l2.3-1.7v-5.1L2.2 15.8v-2l8.3-4.9V3.8c0-1.3.6-2.2 1.5-2.2z');
-  const mono = (px, weight) => `${weight || 500} ${px}px "Geist Mono", ui-monospace, Menlo, monospace`;
+  const mono = (px, weight) => `${weight || 500} ${px}px "JetBrains Mono", ui-monospace, Menlo, monospace`;
   const PORTAL_R0 = 22;
   let sunW = [0, 0, 1], sunS = [-0.8, 0.48, 0.3];              // world- and camera-space sun
   let lastHeading = 0;
@@ -487,7 +499,6 @@
     while (tail > 0 && !pts[tail]) tail--;
     while (tail > 0 && pts[tail - 1]) tail--;
     ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
     ctx.lineWidth = 1.7;
     for (let i = 1; i <= head; i++) {
@@ -495,8 +506,10 @@
       if (!a0 || !a1) continue;
       const k = Math.pow(i / Math.max(head, 1), 1.6);
       const e = tail > 0 ? smooth((i - tail) / 10) : 1;        // a cut end fades instead of stopping dead
-      ctx.strokeStyle = `rgba(255, 150, 95, ${(0.2 + 0.8 * k) * alpha * e})`;
-      ctx.beginPath(); ctx.moveTo(a0.x, a0.y); ctx.lineTo(a1.x, a1.y); ctx.stroke();
+      const a = (0.25 + 0.75 * k) * alpha * e;
+      ctx.beginPath(); ctx.moveTo(a0.x, a0.y); ctx.lineTo(a1.x, a1.y);
+      ctx.lineWidth = 3.6; ctx.strokeStyle = `rgba(${INKC}, ${a * 0.7})`; ctx.stroke();
+      ctx.lineWidth = 1.7; ctx.strokeStyle = `rgba(${ACC}, ${a})`; ctx.stroke();
     }
     ctx.restore();
   };
@@ -533,7 +546,7 @@
     ctx.globalAlpha = alpha;
     ctx.lineJoin = 'round';
     ctx.lineWidth = 3 * 24 / size;
-    ctx.strokeStyle = 'rgb(13, 12, 11)';                       // knockout so it reads over lit dots
+    ctx.strokeStyle = `rgb(${INKC})`;                          // ink knockout so it reads over the dots
     ctx.stroke(PLANE);
     ctx.fillStyle = `rgb(${BONE})`;
     ctx.fill(PLANE);
@@ -545,7 +558,7 @@
     ctx.save();
     ctx.globalAlpha = alpha;
     const lx = x, ly = y - 26;
-    ctx.strokeStyle = `rgba(${BONE}, 0.35)`;
+    ctx.strokeStyle = `rgba(${BONE}, 0.6)`;
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x, y - 7); ctx.lineTo(lx, ly + 7); ctx.stroke();
     ctx.font = mono(11, 500);
@@ -557,15 +570,15 @@
     let bx = align === 'left' ? lx - w + 1 : lx - 1;
     bx = Math.max(12, Math.min(Math.min(W, hudLeft) - 12 - w, bx));   // stay on screen and off the HUD
     const by = ly - h / 2;
-    ctx.fillStyle = 'rgba(13,12,11,0.8)';
-    ctx.strokeStyle = `rgba(${BONE}, 0.16)`;
+    ctx.fillStyle = `rgba(${PAPER}, 0.96)`;
+    ctx.strokeStyle = `rgba(${INKC}, 0.6)`;
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(bx, by, w, h, 4); else ctx.rect(bx, by, w, h);
     ctx.fill(); ctx.stroke();
     ctx.textBaseline = 'middle';
-    ctx.font = mono(11, 500); ctx.fillStyle = `rgb(${ACC})`;
+    ctx.font = mono(11, 500); ctx.fillStyle = `rgb(${INKC})`;
     ctx.fillText(t1, bx + pad, ly + 0.5);
-    ctx.font = mono(11, 400); ctx.fillStyle = `rgba(${BONE}, 0.85)`;
+    ctx.font = mono(11, 400); ctx.fillStyle = `rgba(${INKC}, 0.75)`;
     ctx.fillText(t2, bx + pad + w1 + gap, ly + 0.5);
     ctx.restore();
   };
@@ -718,11 +731,10 @@
       overlay.classList.add('is-portal');
       const ringA = 1 - smooth(seg(pk, 0.55, 1));
       ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.strokeStyle = `rgba(255, 214, 180, ${0.95 * ringA})`;
+      ctx.strokeStyle = `rgba(${BONE}, ${0.95 * ringA})`;
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(cx, cy, r + 1, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = `rgba(${ACC}, ${0.28 * ringA})`;
+      ctx.strokeStyle = `rgba(${ACC}, ${0.12 * ringA})`;
       ctx.lineWidth = 8;
       ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();

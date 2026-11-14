@@ -53,7 +53,7 @@ resume_requests_collection = db.resume_requests
 resume_files_collection = db.resume_files
 
 # Bump when CSS/JS change so Vercel's edge cache and browsers pick up the new files.
-ASSET_VERSION = "2026.10.06"
+ASSET_VERSION = "2026.11.15m"
 
 # Every old page is now a section on the home page. Old URLs keep working via redirects.
 SECTION_ANCHORS = {
@@ -74,16 +74,14 @@ LOGO_IMAGES = {
 
 # Short kicker shown above the featured projects.
 PROJECT_KICKERS = {
-    "LibeCode": "Now building · Co-founder & CTO",
+    "LibeCode": "Co-founder & CEO · used by YC startups",
     "2025 FRC Robot": "Lead programmer · FRC World Championship",
     "CrimeWatcher": "Machine learning · 474K police records",
     "OJuggle": "1st place · GDG Code the Cup",
-    "LaunchScore": "2nd place · Daybot hackathon",
     "ExpenseCity": "2nd place · IBM Bobathon",
     "Project R.O.S.E.": "1st place · WolfHacks 2025",
     "SalesPatriot Logging Dashboard": "Internship · SalesPatriot (YC W25)",
     "IntelliSage": "Chrome extension · OpenAI API",
-    "Student Skill Swap": "Hackathon · Innovative Hacks 2.0",
 }
 
 # Links that live in code rather than the database (override or fill in a project's `link`).
@@ -93,7 +91,96 @@ PROJECT_LINKS = {
 
 SKILL_DISPLAY_NAMES = {"github": "GitHub", "flask": "Flask", "javascript": "JavaScript"}
 
+# Project tech is typed by hand in the DB with mixed casing; the page shows it as written,
+# so fix the common names here rather than editing every document.
+TECH_DISPLAY_NAMES = {
+    **SKILL_DISPLAY_NAMES,
+    "wpilib": "WPILib", "pathplanner": "PathPlanner", "phoenix6": "Phoenix 6",
+    "advantagekit": "AdvantageKit", "pandas": "Pandas", "numpy": "NumPy",
+    "scikit-learn": "scikit-learn", "next.js": "Next.js", "microbit": "micro:bit",
+}
+
 LINKEDIN_URL = "https://www.linkedin.com/in/irvin-sivya/"
+
+# ---------------------------------------------------------------------------
+# Content kept in code
+#
+# The texts below replace what the database holds, so the copy on the page stays short and up to
+# date without editing documents by hand. Delete an entry to fall back to the database again.
+# ---------------------------------------------------------------------------
+
+# Projects that are no longer shown.
+HIDDEN_PROJECTS = {"LaunchScore", "Student Skill Swap"}
+
+PROJECT_DESCRIPTIONS = {
+    "LibeCode": "Technical interviews that measure how efficiently engineers use AI. On a fixed token "
+                "budget, candidates solve a real engineering task with any AI models they choose, and "
+                "the hiring team gets a report on how they worked. Used by companies, including YC startups.",
+    "2025 FRC Robot": "Team 1241's 2025 robot, Haku. Finalists at two regionals, Excellence in "
+                      "Engineering at McMaster, Industrial Design at provincials, and 3rd in Hopper's "
+                      "playoffs at the World Championship. I led the programming.",
+    "CrimeWatcher": "Forecasts crime risk for all 158 Toronto neighbourhoods on a live map, from a "
+                    "gradient-boosted model trained on 474,819 police records. A companion app sends "
+                    "your location to the dashboard when you say a safe word.",
+    "OJuggle": "A 1v1 soccer keep-ups game that scores each trick's difficulty, so flashier moves earn "
+               "more. There was no ball on site, so the demo ran on a hoodie stuffed in a bag. 1st place "
+               "at GDG Code the Cup.",
+    "IntelliSage": "A Chrome extension that summarizes and defines highlighted text with the OpenAI API, "
+                   "so you never leave the page you're reading.",
+    "Project R.O.S.E.": "Waste management for a future city: an Android awareness app, an AI that sorts "
+                        "waste materials, and a micro:bit prototype of a machine that breaks down plastic "
+                        "with bacteria. 1st place at WolfHacks 2025, PDSB's largest hackathon.",
+    "SalesPatriot Logging Dashboard": "Built at SalesPatriot (YC W25) through Harvard's HUVTSP. It flags "
+                                      "hallucinations in the company's AI output, sorts them by failure "
+                                      "type and charts the rates over time.",
+    "ExpenseCity": "An expense tracker that turns your spending into a 3D city, where each building's "
+                   "height is an expense. 2nd place at IBM's Bobathon.",
+}
+
+AWARD_DESCRIPTIONS = {
+    "Schulich Leader Nominee": "Offered the Schulich Leader Scholarship by Queen's (Computer Science, $100,000) "
+                               "and Waterloo (Computer Engineering, $120,000). Out of 300,000+ eligible students, "
+                               "about 1,500 are nominated, and each university selects only 10.",
+    "FRC Dean's List Winner at Districts": "Won FRC's Dean's List Award at the 2024 Durham College District Event, "
+                                           "as lead programmer and drive team member on Team 1285. Our alliance "
+                                           "went undefeated on day two and won the event.",
+    "WolfHacks 2025 - 1st Place": "1st of 76 teams at Peel Region's largest hackathon, with Project R.O.S.E.: "
+                                  "a waste-sorting AI, an awareness app and a micro:bit prototype.",
+    "4x Hackathon Winner": "Four hackathon podiums, including 1st at WolfHacks with Project R.O.S.E., "
+                           "1st at GDG Code the Cup with OJuggle, and 2nd at IBM's Bobathon with ExpenseCity.",
+    "AWS Certified Cloud Practitioner and AI Practitioner": "Both AWS certifications, earned in July 2026.",
+    "AFC Southampton Soccer Captain": "Captained the junior team at AFC Southampton for six years, with multiple "
+                                      "podium finishes in the Southwest Soccer League.",
+    "Powerlifting Champ": "4× medalist. I hold my school's all-time bench press and deadlift records at 66 kg.",
+    "The University of Waterloo's CSMC School Champion": "School Champion and a Certificate of Distinction at the "
+                                                         "2025 CSMC, after co-founding my school's prep club.",
+    "AP Scholar": "Self-studied for and scored 5s in AP Calculus AB, Calculus BC and Computer Science A.",
+    "FRC Rookie All-Star Award 2023": "Team 1285's Rookie All-Star award in my first season, while working on "
+                                      "autonomous and driving.",
+    "FRC Innovation Award 2024": "With Team 1285, in my first season as lead programmer, building path following "
+                                 "and PID control.",
+    "FRC Technical Leadership Award 2025": "With Team 1241, for vision, object tracking and motion profiling work, "
+                                           "plus running workshops for the programming subteam.",
+    "Excellence in Leadership 2026": "Recognizing four years as lead programmer on Teams 1285 and 1241, plus "
+                                     "outreach: robot demos for 100+ middle schoolers and Girls+ in STEM Olympics.",
+}
+
+# Beyond code: short captions, one hidden section, and one that lives only here.
+HIDDEN_ECS = {"Data Science + ML"}
+EC_DESCRIPTIONS = {
+    "Hackathons": "Where I do some of my best work: four podiums, each an idea turned into a working demo.",
+    "FRC Robotics": "Four years and 2,000+ hours as lead programmer on Teams 1285 and 1241. Competed "
+                    "internationally 3×.",
+    "Basketball": "Pickup games with friends at the YMCA, usually right after a movie.",
+    "Powerlifting": "4× medalist. I hold my school's all-time bench and deadlift records at 66 kg.",
+    "CSMC Prep Club": "Co-founded and ran my school's prep club for Waterloo's math contest, then won the "
+                      "School Champion Award at the 2025 CSMC.",
+}
+EXTRA_ECS = [
+    {"title": "Soccer", "image": "afc_southampton.jpg", "after": "FRC Robotics",
+     "description": "Captained the junior team at AFC Southampton, a Premier League club, for six years, "
+                    "with multiple podium finishes."},
+]
 
 
 # ---------------------------------------------------------------------------
@@ -179,12 +266,14 @@ def get_projects():
         featured += by_title.get(title, [])
     rest = [p for p in everything if p.get("title") not in featured_titles]
 
-    projects = featured + rest
+    projects = [p for p in featured + rest if p.get("title") not in HIDDEN_PROJECTS]
     for i, p in enumerate(projects):
+        p["description"] = PROJECT_DESCRIPTIONS.get(p.get("title", ""), p.get("description"))
         p["index"] = i + 1
         p["is_logo"] = p.get("image") in LOGO_IMAGES
         p["kicker"] = PROJECT_KICKERS.get(p.get("title", ""), (p.get("tech") or "").split(",")[0])
-        p["tech_list"] = [t.strip() for t in (p.get("tech") or "").split(",") if t.strip()]
+        p["tech_list"] = [TECH_DISPLAY_NAMES.get(t.strip().lower(), t.strip())
+                          for t in (p.get("tech") or "").split(",") if t.strip()]
         override = PROJECT_LINKS.get(p.get("title", ""))
         if override:
             p["link"], p["link_label"] = override
@@ -203,7 +292,15 @@ def get_awards():
     everything = _fetch(accomplishments_collection)
     pinned = sorted((a for a in everything if "priority" in a), key=lambda a: a["priority"])
     awards = pinned + [a for a in everything if "priority" not in a]
+    # Schulich leads the list, and the 4x hackathon award sits just above WolfHacks; everything
+    # else keeps its database order.
+    awards.sort(key=lambda a: a.get("title") != "Schulich Leader Nominee")
+    titles = [a.get("title") for a in awards]
+    if "4x Hackathon Winner" in titles and "WolfHacks 2025 - 1st Place" in titles:
+        hack = awards.pop(titles.index("4x Hackathon Winner"))
+        awards.insert([a.get("title") for a in awards].index("WolfHacks 2025 - 1st Place"), hack)
     for a in awards:
+        a["description"] = AWARD_DESCRIPTIONS.get(a.get("title", ""), a.get("description"))
         a["is_logo"] = a.get("image") in LOGO_IMAGES
         m = re.search(r"\b(20\d\d)\b", a.get("title", ""))
         a["year"] = m.group(1) if m else ""
@@ -244,8 +341,13 @@ def get_skills():
 
 @cached("extra_curriculars")
 def get_extra_curriculars():
-    ecs = _fetch(extra_curriculars_collection)
+    ecs = [e for e in _fetch(extra_curriculars_collection) if e.get("title") not in HIDDEN_ECS]
+    for extra in EXTRA_ECS:
+        titles = [e.get("title") for e in ecs]
+        at = titles.index(extra["after"]) + 1 if extra["after"] in titles else len(ecs)
+        ecs.insert(at, {k: v for k, v in extra.items() if k != "after"})
     for e in ecs:
+        e["description"] = EC_DESCRIPTIONS.get(e.get("title", ""), e.get("description"))
         e["is_logo"] = e.get("image") in LOGO_IMAGES
     return ecs
 
@@ -255,17 +357,50 @@ def inject_globals():
     return {"asset_v": ASSET_VERSION, "linkedin_url": LINKEDIN_URL, "resume_link_days": RESUME_LINK_DAYS}
 
 
+# The home page is a graph: each of the four numbers under the name links to the content that
+# backs it up. These keep the grouping in one place; anything that matches nothing still shows up
+# in the general projects / awards nodes, so a new DB document is never lost.
+HACKATHON_WINS = ["OJuggle", "Project R.O.S.E.", "ExpenseCity"]   # display order
+ACADEMIC_AWARD_WORDS = ("schulich", "ap scholar", "csmc", "aws")
+
+
+def _is_frc(item, check_description=False):
+    text = f"{item.get('title', '')} {item.get('image', '')}".lower()
+    if check_description:   # awards like "Excellence in Leadership" only say "robotics" in the text
+        text += " " + (item.get("description") or "").lower()
+    return "frc" in text or "robot" in text
+
+
+def build_graph(projects, awards):
+    libecode = next((p for p in projects if p.get("title") == "LibeCode"), None)
+    robots = [p for p in projects if p is not libecode and _is_frc(p) and p.get("title") not in HACKATHON_WINS]
+    wins = sorted((p for p in projects if p.get("title") in HACKATHON_WINS),
+                  key=lambda p: HACKATHON_WINS.index(p["title"]))
+    builds = [p for p in projects if p is not libecode and p not in robots and p not in wins]
+    academic = [a for a in awards if any(w in a.get("title", "").lower() for w in ACADEMIC_AWARD_WORDS)]
+    return {
+        "libecode": libecode,
+        "robots": robots,
+        "frc_awards": [a for a in awards if a not in academic and _is_frc(a, check_description=True)],
+        "wins": wins,
+        "builds": builds,
+        "academic_awards": academic,
+    }
+
+
 @app.route("/")
 def home():
     projects = get_projects()
+    awards = get_awards()
+    ecs = get_extra_curriculars()
     return render_template(
         "index.html",
-        featured=projects[:4],
-        more_projects=projects[4:],
-        awards=get_awards(),
+        g=build_graph(projects, awards),
+        awards=awards,
         experiences=get_experiences(),
         skills=get_skills(),
-        ecs=get_extra_curriculars(),
+        ecs=ecs,
+        frc_ec=next((e for e in ecs if "frc" in (e.get("title") or "").lower()), None),
     )
 
 
@@ -350,6 +485,16 @@ def _send_mail(to, subject, body, reply_to=None):
 def _one_line(value, limit):
     # Collapsing whitespace also strips newlines, which keeps names out of header injection.
     return " ".join((value or "").split())[:limit]
+
+
+_MONTHS = re.compile(r"\b(January|February|March|April|June|July|August|September|October|November|December)\b")
+
+
+@app.template_filter("daterange")
+def _format_daterange(text):
+    """'August 2025 - December 2025' -> 'Aug 2025 – Dec 2025', so a range fits on one line."""
+    text = _MONTHS.sub(lambda m: m.group(1)[:3], text or "")
+    return text.replace(" - ", " – ").replace("Present", "now")
 
 
 @app.template_filter("utc")

@@ -1,163 +1,196 @@
-/* Irvin Sivya — portfolio interactions.
-   Everything here is progressive enhancement: the page reads fine without it. */
+/* Irvin Sivya — portfolio interactions: the graph's wires, its popups, and the resume form.
+   Everything here is progressive enhancement: without it every node is a #link to its popup. */
 (() => {
   const d = document;
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const hasIO = 'IntersectionObserver' in window;
+  const graph = d.getElementById('graph');
+  const svg = d.getElementById('wires');
+  const NS = 'http://www.w3.org/2000/svg';
 
-  /* ---------- Header state, scroll progress, hero parallax ---------- */
-  const header = d.getElementById('site-header');
-  const progress = d.querySelector('.progress span');
-  const heroMedia = d.querySelector('.hero__media');
-  let ticking = false;
+  /* ---------- Wires ----------
+     Each edge goes from one node to another. `chain` groups the edges that light up together
+     when you hover a node: hovering "robots" lights root → 2,000+ → robots. */
+  const EDGES = [
+    { from: 'root', to: 'experience', out: 'l', in: 'r', chain: 'experience' },
+    { from: 'root', to: 'libecode', out: 'l', in: 'r', chain: 'libecode' },
+    { from: 'root', to: 'skills', out: 'r', in: 'l', chain: 'skills' },
+    { from: 'root', to: 'beyond', out: 'r', in: 'l', chain: 'beyond' },
+    { from: 'root', to: 's-robots', out: 'b', in: 't', chain: 'robots' },
+    { from: 'root', to: 's-projects', out: 'b', in: 't', chain: 'projects' },
+    { from: 'root', to: 's-academics', out: 'b', in: 't', chain: 'academics' },
+    { from: 'root', to: 's-awards', out: 'b', in: 't', chain: 'awards' },
+    { from: 's-robots', to: 'robots', out: 'b', in: 'r', chain: 'robots' },
+    { from: 's-projects', to: 'projects', out: 'b', in: 't', chain: 'projects' },
+    { from: 's-academics', to: 'academics', out: 'r', in: 'l', chain: 'academics' },
+    { from: 's-awards', to: 'awards', out: 'b', in: 't', chain: 'awards' },
+  ];
 
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const y = window.scrollY;
-      if (header) header.classList.toggle('is-scrolled', y > 24);
-      if (progress) {
-        const h = d.documentElement.scrollHeight - window.innerHeight;
-        progress.style.setProperty('--p', h > 0 ? (y / h).toFixed(4) : 0);
-      }
-      if (heroMedia && !reduceMotion && y < window.innerHeight * 1.3) {
-        heroMedia.style.transform = `translateY(${(y * 0.08).toFixed(1)}px)`;
-      }
-      ticking = false;
+  const nodeEl = (id) => graph && graph.querySelector(`[data-id="${id}"]`);
+  let scale = 1;                                   // set by fit(); boxes are measured unscaled
+  const box = (el) => {
+    const r = el.getBoundingClientRect(), g = graph.getBoundingClientRect();
+    const b = { l: (r.left - g.left) / scale, t: (r.top - g.top) / scale, r: (r.right - g.left) / scale, b: (r.bottom - g.top) / scale };
+    b.cx = (b.l + b.r) / 2;
+    return b;
+  };
+  const el = (name, attrs, parent) => {
+    const n = d.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+  /* Arrows: a dotted curve ending in a ">". It leaves its source square to that card's edge and
+     enters the centre of the target's edge head-on, so every arrow lines up with what it joins. */
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  // A card's real geometry on the board: its centre, unrotated size and tilt. Arrow ends are
+  // computed on the tilted card itself, so they land exactly on an edge, not on its bounding box.
+  const geom = (n) => {
+    const m = /matrix\(([^,]+),\s*([^,]+)/.exec(getComputedStyle(n).transform || '');
+    return { cx: n.offsetLeft + n.offsetWidth / 2, cy: n.offsetTop + n.offsetHeight / 2,
+      w: n.offsetWidth, h: n.offsetHeight, ang: m ? Math.atan2(+m[2], +m[1]) : 0 };
+  };
+  const turn = (gm, x, y) => [gm.cx + x * Math.cos(gm.ang) - y * Math.sin(gm.ang), gm.cy + x * Math.sin(gm.ang) + y * Math.cos(gm.ang)];
+  // A point just outside `side` of a card, `along` px from that edge's centre, plus the
+  // outward direction there.
+  const GAP = 5;
+  const port = (gm, side, along) => {
+    const local = { t: [along, -gm.h / 2 - GAP, 0, -1], b: [along, gm.h / 2 + GAP, 0, 1],
+      l: [-gm.w / 2 - GAP, along, -1, 0], r: [gm.w / 2 + GAP, along, 1, 0] }[side];
+    const p = turn(gm, local[0], local[1]), o = turn(gm, local[0] + local[2], local[1] + local[3]);
+    return [p, [o[0] - p[0], o[1] - p[1]]];
+  };
+  const BITS = '0110100101110010011101100110100101101110';
+  let uid = 0;
+  let hotChain = null;                              // the hovered card's chain survives a redraw
+
+  const draw = () => {
+    if (!graph || !svg) return;
+    svg.replaceChildren();
+    if (getComputedStyle(svg).display === 'none') return;
+    EDGES.forEach((e, i) => {
+      const fromEl = nodeEl(e.from), toEl = nodeEl(e.to);
+      if (!fromEl || !toEl) return;
+      const A = geom(fromEl), B = geom(toEl);
+      // The arrow arrives at the centre of the target's edge, and leaves the source from the point
+      // of its edge facing the target, so short arrows run straight and square to both cards.
+      const vertical = e.out === 't' || e.out === 'b';
+      const half = (vertical ? A.w : A.h) / 2 - 24;
+      const along = clamp(vertical ? B.cx - A.cx : B.cy - A.cy, -half, half);
+      const [p1, n1] = port(A, e.out, along), [p2, n2] = port(B, e.in, 0);
+      const len = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) || 1, k = Math.min(70, len * 0.42);
+      const c1 = [p1[0] + n1[0] * k, p1[1] + n1[1] * k], c2 = [p2[0] + n2[0] * k, p2[1] + n2[1] * k];
+      const d0 = `M${p1[0]} ${p1[1]} C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`;
+      const g = el('g', { class: `wire${e.chain === hotChain ? ' is-hot' : ''}`, 'data-chain': e.chain }, svg);
+      const id = `w${uid++}`;
+      el('path', { id, class: 'wire__dots', d: d0 }, g);
+      // ">" at the end, turned to the curve's direction
+      const ang = Math.atan2(-n2[1], -n2[0]), s = 6;           // straight into the card
+      el('path', { class: 'wire__head', d: `M${p2[0] - Math.cos(ang - 0.6) * s} ${p2[1] - Math.sin(ang - 0.6) * s} L${p2[0]} ${p2[1]} L${p2[0] - Math.cos(ang + 0.6) * s} ${p2[1] - Math.sin(ang + 0.6) * s}` }, g);
+      // the bits shown on hover, written along the same curve
+      const t = el('text', { class: 'wire__bits', dy: '3.5' }, g);
+      const tp = el('textPath', { href: `#${id}`, startOffset: '0' }, t);
+      tp.textContent = BITS.repeat(Math.ceil(len / 60) + 2);
     });
   };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 
-  /* ---------- Mobile menu ---------- */
-  const burger = d.getElementById('burger');
-  const menu = d.getElementById('menu');
-  if (burger && menu) {
-    const setMenu = (open) => {
-      burger.classList.toggle('is-open', open);
-      menu.classList.toggle('is-open', open);
-      burger.setAttribute('aria-expanded', String(open));
-      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      menu.setAttribute('aria-hidden', String(!open));
-      d.body.classList.toggle('menu-open', open);
-    };
-    burger.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
-    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
-    d.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && menu.classList.contains('is-open')) setMenu(false);
-    });
-  }
-
-  /* ---------- Reveal on scroll ---------- */
-  const revealEls = d.querySelectorAll('[data-reveal]');
-  if (hasIO && !reduceMotion) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (en.isIntersecting) {
-          en.target.classList.add('is-in');
-          io.unobserve(en.target);
-        }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-    revealEls.forEach((el) => io.observe(el));
-  } else {
-    revealEls.forEach((el) => el.classList.add('is-in'));
-  }
-
-  /* ---------- Active nav link ---------- */
-  const navLinks = Array.from(d.querySelectorAll('.nav a[data-nav]'));
-  const sections = navLinks.map((a) => d.getElementById(a.dataset.nav)).filter(Boolean);
-  if (sections.length && hasIO) {
-    const setActive = (id) => navLinks.forEach((a) => a.classList.toggle('is-active', a.dataset.nav === id));
-    const so = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) setActive(en.target.id); });
-    }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
-    sections.forEach((s) => so.observe(s));
-    window.addEventListener('scroll', () => {
-      if (window.scrollY < sections[0].offsetTop - window.innerHeight * 0.5) setActive(null);
-    }, { passive: true });
-  }
-
-  /* ---------- Counters ---------- */
-  const counters = d.querySelectorAll('[data-count]');
-  const fmt = (n) => n.toLocaleString('en-US');
-  const runCounter = (el) => {
-    const target = Number(el.dataset.count);
-    const duration = 1500;
-    const start = performance.now();
-    const step = (t) => {
-      const p = Math.min(1, (t - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = fmt(Math.round(target * eased));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+  // While a card is hovered, its bits stream toward it.
+  let streamTimer = 0;
+  const stream = (on) => {
+    clearInterval(streamTimer);
+    if (!on) return;
+    let k = 0;
+    streamTimer = setInterval(() => {
+      k = (k + 1) % 8;
+      svg.querySelectorAll('.wire.is-hot textPath').forEach((tp) => tp.setAttribute('startOffset', `${k * 6.2 - 49.6}`));
+    }, 70);
   };
-  const startCounters = () => {
-    if (reduceMotion || !hasIO) {
-      counters.forEach((el) => { el.textContent = fmt(Number(el.dataset.count)); });
-      return;
+
+  /* ---------- Fit the graph to the screen ----------
+     On a laptop the whole graph should be visible without scrolling. If it is taller than the
+     window it is scaled down as one piece (never below MIN_SCALE, after which the page scrolls),
+     and the negative margin gives back the space the scaling freed. Phones get the stacked
+     layout instead, which scrolls. */
+  const MIN_SCALE = 0.72;
+  const fit = () => {
+    if (!graph) return;
+    graph.style.transform = '';
+    graph.style.marginBottom = '';
+    graph.style.height = '';
+    scale = 1;
+    if (getComputedStyle(svg).display === 'none') return;
+    // the canvas is as tall as its lowest card
+    const bottom = Math.max(...Array.from(graph.querySelectorAll('[data-id]')).map((n) => n.offsetTop + n.offsetHeight));
+    graph.style.height = `${bottom + 28}px`;
+    const natural = graph.offsetHeight, wide = graph.offsetWidth;
+    const room = d.documentElement.clientWidth - 32;
+    const byHeight = Math.max(MIN_SCALE, (window.innerHeight - 2) / natural);
+    scale = Math.min(1, room / wide, byHeight);
+    graph.style.transform = `translateX(-50%) scale(${scale})`;
+    graph.style.marginBottom = `${-natural * (1 - scale)}px`;
+  };
+  const layout = () => { fit(); draw(); };
+
+  if (graph && svg) {
+    layout();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(draw).observe(graph);
+      // The viewport's size, watched through an invisible full-screen box: not every resize
+      // (zoom, split view, a height-only change) fires 'resize'.
+      const viewport = d.createElement('div');
+      viewport.setAttribute('aria-hidden', 'true');
+      viewport.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;z-index:-1';
+      d.body.appendChild(viewport);
+      new ResizeObserver(layout).observe(viewport);
     }
-    const co = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (en.isIntersecting) { runCounter(en.target); co.unobserve(en.target); }
-      });
-    }, { threshold: 0.5 });
-    counters.forEach((el) => co.observe(el));
+    window.addEventListener('resize', layout);
+    if (d.fonts && d.fonts.ready) d.fonts.ready.then(layout);
+    window.addEventListener('load', layout);
+
+    // Hovering (or focusing) a node lights the wires that lead to it.
+    const chainOf = (n) => {
+      const id = n.dataset.id;
+      return id.startsWith('s-') ? id.slice(2) : id;
+    };
+    const light = (chain) => { hotChain = chain; svg.querySelectorAll('.wire').forEach((w) => w.classList.toggle('is-hot', w.dataset.chain === chain)); stream(Boolean(chain)); };
+    graph.querySelectorAll('.node.is-link[data-id]').forEach((n) => {
+      n.addEventListener('pointerenter', () => light(chainOf(n)));
+      n.addEventListener('pointerleave', () => light(null));
+      n.addEventListener('focusin', () => light(chainOf(n)));
+      n.addEventListener('focusout', () => light(null));
+    });
+  }
+
+  /* ---------- Popups ----------
+     Each node opens a <dialog>. The URL follows along (#experience), so a popup can be linked
+     to, and the old section URLs (/experiences → /#experience) open the right one. */
+  const pops = new Map(Array.from(d.querySelectorAll('dialog.pop')).map((p) => [p.id, p]));
+  const canModal = pops.size && typeof d.createElement('dialog').showModal === 'function';
+  const clearHash = () => history.replaceState(null, '', location.pathname + location.search);
+
+  const openPop = (id) => {
+    const p = pops.get(id);
+    if (!p || !canModal) return false;
+    pops.forEach((o) => { if (o !== p && o.open) o.close(); });
+    if (!p.open) p.showModal();
+    p.scrollTop = 0;
+    history.replaceState(null, '', `#${id}`);
+    return true;
   };
-  // Don't count under the intro overlay; wait until it has handed off to the hero.
-  (window.introPromise || Promise.resolve()).then(startCounters);
 
-  /* ---------- Hero spotlight follows the cursor ---------- */
-  const hero = d.querySelector('.hero');
-  if (hero && finePointer && !reduceMotion) {
-    hero.addEventListener('pointermove', (e) => {
-      const r = hero.getBoundingClientRect();
-      hero.style.setProperty('--mx', `${((e.clientX - r.left) / r.width * 100).toFixed(2)}%`);
-      hero.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100).toFixed(2)}%`);
+  if (canModal) {
+    d.addEventListener('click', (e) => {
+      const a = e.target.closest('[data-open]');
+      if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (openPop(a.dataset.open)) e.preventDefault();
     });
+    pops.forEach((p) => {
+      // A click on the dialog element itself is a click on the blurred backdrop.
+      p.addEventListener('click', (e) => { if (e.target === p || e.target.closest('[data-close]')) p.close(); });
+      p.addEventListener('close', () => { if (location.hash === `#${p.id}`) clearHash(); });
+    });
+    const fromHash = () => { const id = location.hash.slice(1); if (pops.has(id)) openPop(id); };
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
   }
-
-  /* ---------- Card sheen tracks the cursor ---------- */
-  if (finePointer) {
-    d.querySelectorAll('.card').forEach((card) => {
-      card.addEventListener('pointermove', (e) => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--x', `${e.clientX - r.left}px`);
-        card.style.setProperty('--y', `${e.clientY - r.top}px`);
-      });
-    });
-  }
-
-  /* ---------- Magnetic buttons ---------- */
-  if (finePointer && !reduceMotion) {
-    d.querySelectorAll('[data-magnetic]').forEach((btn) => {
-      const strength = 0.22;
-      btn.addEventListener('pointermove', (e) => {
-        const r = btn.getBoundingClientRect();
-        const x = e.clientX - r.left - r.width / 2;
-        const y = e.clientY - r.top - r.height / 2;
-        btn.style.transform = `translate(${(x * strength).toFixed(1)}px, ${(y * strength).toFixed(1)}px)`;
-      });
-      btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
-    });
-  }
-
-  /* ---------- "Read more" for clamped descriptions ---------- */
-  d.querySelectorAll('.clamp').forEach((p) => {
-    const btn = p.parentElement && p.parentElement.querySelector('.more');
-    if (!btn) return;
-    const check = () => { if (p.scrollHeight > p.clientHeight + 2) btn.hidden = false; };
-    check();
-    if (d.fonts && d.fonts.ready) d.fonts.ready.then(check);
-    btn.addEventListener('click', () => {
-      const open = p.classList.toggle('is-open');
-      btn.textContent = open ? 'Show less' : 'Read more';
-      btn.setAttribute('aria-expanded', String(open));
-    });
-  });
 
   /* ---------- Resume request dialog ----------
      The resume isn't public, so every Resume button opens a request form. The buttons are

@@ -3,8 +3,13 @@
 Irvin Sivya's personal website: [irvinsivya.com](https://www.irvinsivya.com/).
 
 Flask + Jinja on Vercel, content in MongoDB. The site is a single page (`templates/index.html`)
-with anchored sections; the old per-section URLs (`/projects`, `/accomplishments`, ...) redirect
-to the matching anchor. The resume is not public: see [Resume requests](#resume-requests).
+laid out as a node graph: a root node for Irvin, side nodes (experience, LibeCode, skills, beyond
+code), four numbers under the root, and a node under each number for what backs it up (FRC hours →
+robots, hackathon wins → projects, grad average → academics, scholarships → awards). Every node
+opens a popup (`<dialog id="...">`); `static/js/script.js` draws the wires and opens popups from
+`#id` links, so the old per-section URLs (`/projects`, `/accomplishments`, ...) still land on the
+right popup. A black-and-white globe intro (`static/js/intro.js`) plays once per session first.
+The resume is not public: see [Resume requests](#resume-requests).
 
 ## Run locally
 
@@ -20,7 +25,10 @@ unless you mean to: it writes to the production database (it refuses without `--
 ## Content
 
 - Projects, awards, experiences, skills, and extracurriculars come from MongoDB (`my_portfolio`).
-- Hero, about, and the LibeCode experience entry are hardcoded in `templates/index.html`.
+- Hero, about, academics, and the LibeCode experience entry are hardcoded in `templates/index.html`.
+- `build_graph()` in `main.py` sorts projects and awards into the nodes (FRC, hackathon wins,
+  academic awards, everything else). A new document that matches nothing still appears in the
+  general projects or awards popup.
 - Images live in `static/images/<collection>/` and are referenced by filename from the DB.
 
 ## Resume requests
