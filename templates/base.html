@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Irvin Sivya — CS @ Waterloo, Co-founder & CEO @ LibeCode{% endblock %}</title>
+  <title>{% block title %}Irvin Sivya{% endblock %}</title>
   <meta name="description" content="Irvin Sivya is a Computer Science student at the University of Waterloo, co-founder & CEO of LibeCode, a four-year FRC lead programmer, and a 4x hackathon winner.">
   <meta name="theme-color" content="#f7f6f2">
-  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-  <link rel="alternate icon" href="{{ url_for('static', filename='favicon.png') }}">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}?v={{ asset_v }}" type="image/svg+xml">
+  <link rel="alternate icon" href="{{ url_for('static', filename='favicon.png') }}?v={{ asset_v }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v={{ asset_v }}">
   {#- Everything in head_meta, intro_boot, chrome and intro_script is home-page only; the resume
       request pages (templates/_page.html) swap in noindex and a slim header instead. #}
   {% block head_meta %}
