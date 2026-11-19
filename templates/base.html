@@ -23,13 +23,14 @@
   {% endblock %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   {% block preload %}
   <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero.webp') }}" type="image/webp" fetchpriority="high">
   <link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-land.png') }}">
   <link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-lights.webp') }}" type="image/webp">
   {% endblock %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ asset_v }}">
+  {% block styles %}{% endblock %}
   <script>
     document.documentElement.classList.add('js');
     {% block intro_boot %}
@@ -85,6 +86,6 @@
   {% block intro_script %}
   <script src="{{ url_for('static', filename='js/intro.js') }}?v={{ asset_v }}" defer></script>
   {% endblock %}
-  <script src="{{ url_for('static', filename='js/script.js') }}?v={{ asset_v }}" defer></script>
+  {% block scripts %}<script src="{{ url_for('static', filename='js/script.js') }}?v={{ asset_v }}" defer></script>{% endblock %}
 </body>
 </html>

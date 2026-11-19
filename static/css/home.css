@@ -1,0 +1,322 @@
+/* Irvin Sivya — home page: four doors around a name card, and the four popups.
+   Loaded after style.css (which still carries the reset, the flight intro and the resume pages).
+   Sizes on the wide layout are multiples of --u, one design pixel of a 1440 x 900 screen, so the
+   page fills any desktop window and the type scales with it. */
+:root {
+  --k: #131313;
+  --p: #f7f6f2;
+  --hot: #ff5a1f;
+  --sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --u: min(calc(100vw / 1440), calc(100vh / 900));
+}
+body { background: var(--k); font-family: var(--sans); }
+.doors, .doors *, .dlg, .dlg * { box-sizing: border-box; }
+
+/* ---------- Doors ---------- */
+.doors {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 560px;
+  padding: calc(24 * var(--u));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: calc(24 * var(--u));
+  background: var(--k);
+  overflow: hidden;
+}
+.door {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: calc(24 * var(--u)) calc(30 * var(--u));
+  text-decoration: none;
+}
+.door--dk { background: var(--k); color: var(--p); }
+.door--lt { background: var(--p); color: var(--k); }
+.door--tr, .door--br { align-items: flex-end; text-align: right; }
+.door--bl, .door--br { justify-content: flex-end; }
+.door__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  transition: filter 0.3s, opacity 0.3s;
+}
+.door--dk .door__bg { filter: grayscale(1) brightness(0.15); }
+.door--lt .door__bg { filter: grayscale(1); opacity: 0.11; }
+.door:hover .door__bg { filter: none; opacity: 1; }
+.door--tl .door__bg { object-position: right bottom; }
+.door--tr .door__bg { object-position: left top; }
+.door--bl .door__bg { object-position: right top; }
+.door--br .door__bg { object-position: left bottom; }
+
+/* The text sits on a patch of the door's own colour, so no photo runs behind the words. */
+.door__tx {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  margin: calc(-14 * var(--u)) calc(-18 * var(--u)) calc(-16 * var(--u));
+  padding: calc(14 * var(--u)) calc(18 * var(--u)) calc(16 * var(--u));
+}
+.door--dk .door__tx { background: var(--k); }
+.door--lt .door__tx { background: var(--p); }
+.door__stat { font-size: calc(112 * var(--u)); font-weight: 700; letter-spacing: -0.036em; line-height: 0.92; }
+.door__line { font-size: calc(20 * var(--u)); font-weight: 600; line-height: 1.2; margin-top: calc(6 * var(--u)); }
+.door__sub { font-size: calc(15 * var(--u)); font-weight: 500; line-height: 1.3; margin-top: calc(4 * var(--u)); }
+.door__btn {
+  margin-top: calc(14 * var(--u));
+  height: calc(50 * var(--u));
+  width: calc(250 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc(18 * var(--u));
+  font-size: calc(18 * var(--u));
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.2s, color 0.2s;
+}
+.door--dk .door__btn, .door--lt .door__btn { background: var(--hot); color: var(--k); }
+.door--dk:hover .door__btn { background: var(--p); color: var(--k); }
+.door--lt:hover .door__btn { background: var(--k); color: var(--p); }
+.door:focus-visible { outline: 3px solid var(--hot); outline-offset: -3px; }
+
+/* Separators: one thin light line through the middle of each black band. */
+.rule { position: absolute; background: var(--p); pointer-events: none; }
+.rule--h { left: 0; right: 0; height: 2px; }
+.rule--v { top: 0; bottom: 0; width: 2px; }
+.rule--h.rule--1 { top: calc(11 * var(--u)); }
+.rule--h.rule--2 { top: calc(50% - 1px); }
+.rule--h.rule--3 { bottom: calc(11 * var(--u)); }
+.rule--v.rule--1 { left: calc(11 * var(--u)); }
+.rule--v.rule--2 { left: calc(50% - 1px); }
+.rule--v.rule--3 { right: calc(11 * var(--u)); }
+
+/* ---------- Name card ---------- */
+.me {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(566 * var(--u));
+  background: #fff;
+  color: var(--k);
+  border: calc(6 * var(--u)) solid var(--k);
+  box-shadow: 0 0 0 2px var(--p);
+  padding: calc(18 * var(--u)) calc(18 * var(--u)) calc(18 * var(--u)) calc(24 * var(--u));
+  display: flex;
+  gap: calc(20 * var(--u));
+  align-items: center;
+  justify-content: space-between;
+}
+.me__name { font-size: calc(68 * var(--u)); font-weight: 700; letter-spacing: -0.034em; line-height: 1; }
+.me__tag { font-family: var(--mono); font-size: calc(15 * var(--u)); margin-top: calc(8 * var(--u)); }
+.me__pic { width: calc(152 * var(--u)); height: calc(152 * var(--u)); object-fit: cover; border: calc(3 * var(--u)) solid var(--k); flex-shrink: 0; }
+
+/* ---------- Popups ---------- */
+.dlg {
+  width: min(1400px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 3px solid;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.dlg--dk { background: var(--k); color: var(--p); border-color: var(--p); --line: #5a5a5e; --soft: #c9c8c2; --inv: var(--p); --invtx: var(--k); }
+.dlg--lt { background: var(--p); color: var(--k); border-color: var(--k); --line: var(--k); --soft: #4a4944; --inv: var(--k); --invtx: var(--p); }
+.dlg::backdrop { background: rgba(19, 19, 19, 0.62); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+.dlg[open] { animation: pop-in 0.22s ease-out; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) { .dlg[open] { animation: none; } .door__bg { transition: none; } }
+
+.dlg__bar { position: sticky; top: 0; z-index: 2; display: flex; background: inherit; border-bottom: 3px solid var(--inv); }
+.dlg__tabs { display: flex; flex-wrap: wrap; flex: 1; min-width: 0; }
+.dlg__tabs a, .dlg__close {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  min-height: 52px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  border-right: 2px solid var(--inv);
+  color: inherit;
+}
+.dlg__tabs a:hover, .dlg__close:hover { background: var(--hot); color: var(--k); }
+.dlg__tabs a[aria-current] { background: var(--inv); color: var(--invtx); }
+.dlg__close { border-right: 0; border-left: 2px solid var(--inv); cursor: pointer; white-space: nowrap; }
+
+.dlg__body--side { display: grid; grid-template-columns: minmax(260px, 30%) minmax(0, 1fr); }
+.side { padding: 34px 36px; border-right: 3px solid var(--inv); display: flex; flex-direction: column; }
+.dlg--lt .main { background: #fff; }
+.side__stat { font-size: clamp(84px, 10vw, 128px); font-weight: 700; letter-spacing: -0.04em; line-height: 0.9; }
+.side__line { font-size: 22px; font-weight: 600; line-height: 1.25; margin-top: 12px; }
+.side__note { font-size: 15.5px; color: var(--soft); margin-top: 12px; }
+.side__pic { width: 100%; max-width: 280px; aspect-ratio: 4 / 5; object-fit: cover; border: 3px solid var(--inv); margin-top: auto; }
+.side .facts { margin-top: auto; padding-top: 28px; }
+.facts > div { display: flex; gap: 16px; align-items: baseline; padding: 11px 0; border-top: 1px solid var(--line); }
+.facts dt { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; min-width: 104px; line-height: 1.1; }
+.facts dd { font-size: 16px; }
+.main { padding: 30px 34px 34px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+
+.tag { display: inline-block; font-family: var(--mono); font-size: 11.5px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; padding: 4px 9px; background: var(--k); color: #fff; }
+.lnk a { font-weight: 600; }
+.lnk a:hover, .builds a:hover { color: var(--hot); }
+
+/* Robotics */
+.garage { position: relative; display: block; color: var(--k); text-decoration: none; }
+.garage img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border: 1px solid var(--line); }
+.dlg__body--side .main:has(> .garage:only-child) { justify-content: center; }
+.garage__btn { position: absolute; left: 18px; bottom: 18px; right: auto; max-width: calc(100% - 36px); background: var(--p); padding: 13px 20px; font-size: 19px; font-weight: 600; transition: background-color 0.2s; }
+.garage__btn:hover, .garage:focus-visible .garage__btn { background: var(--hot); }
+
+/* Hackathons */
+.side--narrow { }
+.wins { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.win { display: flex; flex-direction: column; border: 3px solid var(--k); background: #fff; min-width: 0; }
+.win__pic { position: relative; border-bottom: 3px solid var(--k); }
+.win__pic img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center 30%; }
+.win__pic img.win__top { object-position: center 18%; }
+.win__pic img.win__logo { object-fit: contain; padding: 12px; }
+.win__pic img.win__logo--rose { background: #0a2d51; }
+.win__pic img.win__logo--city { background: #000; }
+.win__pic .tag { position: absolute; left: 0; bottom: 0; background: var(--hot); color: var(--k); padding: 5px 10px; }
+.win__tx { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 0; min-width: 0; }
+.win h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.win__event { font-size: 13.5px; font-weight: 600; color: var(--soft); margin-top: 3px; }
+.win__desc { font-size: 14.5px; line-height: 1.45; margin-top: 10px; }
+/* Pinned above the link with room for two rows, so the tags start at the same height on every card. */
+.chips { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; margin-top: auto; padding: 12px 0 14px; min-height: 73px; }
+.chips li { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; border: 1.5px solid var(--k); padding: 2px 6px; white-space: nowrap; }
+.win__link { margin: 0 -16px 0; padding: 10px 16px; border-top: 3px solid var(--k); display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 600; text-decoration: none; color: var(--k); transition: background-color 0.2s; }
+.win__link:hover, .win__link:focus-visible { background: var(--hot); }
+.rowhead { font-family: var(--mono); font-size: 12.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; border-top: 3px solid var(--k); padding-top: 14px; margin-bottom: -8px; }
+.builds { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+.builds li { border: 2px solid var(--k); padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 4px; }
+.builds b { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.builds span { font-size: 14px; line-height: 1.4; color: var(--soft); }
+.builds a { font-size: 14px; font-weight: 600; margin-top: auto; padding-top: 4px; }
+
+/* Awards */
+.feature { display: flex; border: 3px solid var(--k); background: var(--p); }
+.feature img { width: 40%; max-width: 320px; object-fit: cover; border-right: 3px solid var(--k); flex-shrink: 0; }
+.feature > div { padding: 18px 22px; }
+.feature h3 { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-top: 10px; }
+.feature p { margin-top: 8px; }
+.awardlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); column-gap: 30px; }
+.awardlist li { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--k); }
+.awardlist img { width: 104px; height: 78px; object-fit: cover; border: 1px solid var(--k); flex-shrink: 0; }
+.awardlist b { display: block; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+.awardlist span { display: block; font-size: 14px; line-height: 1.35; color: var(--soft); margin-top: 2px; }
+
+/* LibeCode */
+.dlg__body--duo { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.duo__media { padding: 34px 0 34px 36px; display: flex; flex-direction: column; gap: 18px; }
+.duo__media > img { width: 100%; aspect-ratio: 1600 / 1008; object-fit: cover; border: 1px solid var(--line); }
+.boxes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+.boxes > div { padding: 14px 16px; }
+.boxes > div + div { border-left: 1px solid var(--line); }
+.boxes dt { font-size: 38px; font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; }
+.boxes dd { font-size: 14.5px; color: var(--soft); }
+.duo__tx { padding: 34px 40px; display: flex; flex-direction: column; min-width: 0; }
+.duo__title { font-size: clamp(56px, 7vw, 86px); font-weight: 700; letter-spacing: -0.045em; line-height: 0.95; }
+.duo__lede { font-size: 22px; font-weight: 600; line-height: 1.35; margin-top: 16px; }
+.spec { margin-top: 24px; }
+.spec > div { display: flex; gap: 16px; padding: 11px 0; border-top: 1px solid var(--line); }
+.spec dt { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; width: 96px; flex-shrink: 0; padding-top: 3px; }
+.bigbtn { margin-top: 28px; align-self: flex-start; background: var(--p); color: var(--k); padding: 14px 22px; font-size: 19px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; }
+.bigbtn:hover, .bigbtn:focus-visible { background: var(--hot); }
+
+/* ---------- Narrow popups ---------- */
+@media (max-width: 900px) {
+  .dlg__body--side, .dlg__body--duo { grid-template-columns: minmax(0, 1fr); }
+  .side { border-right: 0; border-bottom: 3px solid var(--inv); padding: 26px 22px; }
+  .side .facts { margin-top: 0; }
+  .side__pic { display: none; }
+  .main { padding: 22px; }
+  .duo__media { padding: 22px 22px 0; }
+  .duo__tx { padding: 22px; }
+  .feature { flex-direction: column; }
+  .feature img { width: 100%; max-width: none; border-right: 0; border-bottom: 3px solid var(--k); }
+  .garage__btn { position: static; display: block; max-width: none; }
+  .dlg__tabs a, .dlg__close { padding: 0 12px; min-height: 46px; font-size: 11px; }
+}
+
+/* ---------- Phones and narrow windows ----------
+   The name card comes first, then the four doors stacked. Each door shows its whole collage in
+   colour (there is no hover on a phone) with the text on a solid block underneath. */
+@media (max-width: 860px) {
+  :root { --u: 1px; }
+  .doors { height: auto; min-height: 0; display: flex; flex-direction: column; padding: 12px; overflow: hidden; }
+  .rule { display: none; }
+
+  .me {
+    position: static; transform: none; width: auto; order: -1;
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center;
+    padding: 16px; border-width: 4px; box-shadow: none;
+  }
+  .me__pic { grid-column: 1; grid-row: 1 / span 2; width: 76px; height: 76px; border-width: 3px; }
+  .me__tx { display: contents; }
+  .me__name { grid-column: 2; grid-row: 1; align-self: end; font-size: clamp(32px, 10vw, 48px); }
+  .me__tag { grid-column: 2; grid-row: 2; align-self: start; font-size: 12px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Between doors: a wide black band with a light line through it, like the desktop cross. */
+  .doors { gap: 38px; padding-bottom: 28px; }
+  .door { min-height: 0; padding: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; text-align: left; overflow: visible; outline: 2px solid var(--p); }
+  .door::before { content: ""; position: absolute; left: -12px; right: -12px; top: -20px; height: 2px; background: var(--p); }
+  .door__bg { position: static; width: 100%; height: auto; aspect-ratio: 1440 / 872; }
+  .door--dk .door__bg, .door--lt .door__bg { filter: none; opacity: 1; }
+  .door__tx {
+    margin: 0; padding: 14px 16px 16px;
+    display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: end;
+  }
+    .door__stat { grid-column: 1; grid-row: 1 / span 2; font-size: 64px; line-height: 0.9; margin: 0; align-self: center; }
+  .door__line { grid-column: 2; grid-row: 1; font-size: 17px; margin: 0; }
+  .door__sub { grid-column: 2; grid-row: 2; font-size: 13.5px; margin: 2px 0 0; align-self: start; }
+  .door__btn { grid-column: 1 / -1; width: auto; height: 48px; font-size: 16.5px; margin-top: 12px; }
+
+  .dlg { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .dlg__tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .dlg__tabs::-webkit-scrollbar { display: none; }
+  .dlg__tabs a { white-space: nowrap; }
+}
+
+/* The popup itself takes focus when it opens; only the controls inside it should show a ring. */
+.dlg:focus, .dlg:focus-visible { outline: none; }
+
+/* Hackathons: four cards in a row and a slim side column, so the popup fits a laptop screen
+   without scrolling. Narrower windows fall back to the wrapping grid above. */
+@media (min-width: 1100px) {
+  #hackathons .dlg__body--side { grid-template-columns: 310px minmax(0, 1fr); }
+  #hackathons .side { padding: 28px 26px; }
+  #hackathons .side__stat { font-size: 104px; }
+  #hackathons .side__pic { max-width: none; }
+  #hackathons .main { padding: 24px 26px 26px; gap: 16px; }
+  #hackathons .wins { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  #hackathons .win__tx { padding: 12px 14px 0; }
+  #hackathons .win h3 { font-size: 22px; }
+  #hackathons .win__event { font-size: 13.5px; }
+  #hackathons .win__desc { font-size: 14.5px; line-height: 1.42; margin-top: 8px; }
+  #hackathons .chips { padding: 10px 0 12px; min-height: 69px; }
+  #hackathons .win__link { margin: 0 -14px 0; padding: 9px 14px; font-size: 14px; }
+  #hackathons .rowhead { padding-top: 12px; margin-bottom: -4px; }
+  #hackathons .builds { gap: 14px; }
+  #hackathons .builds li { padding: 10px 14px 12px; }
+  #hackathons .builds b { font-size: 17px; }
+  #hackathons .builds span { font-size: 14.5px; }
+}

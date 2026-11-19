@@ -4,3 +4,5 @@ __pycache__/
 .claude/
 # The resume has personal contact details: it lives in MongoDB (scripts/upload_resume.py), never here.
 *.pdf
+# Source photos sent for the home page collages; the site only uses the built images in static/images/home.
+_incoming_photos/

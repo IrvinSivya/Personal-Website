@@ -53,7 +53,7 @@ resume_requests_collection = db.resume_requests
 resume_files_collection = db.resume_files
 
 # Bump when CSS/JS change so Vercel's edge cache and browsers pick up the new files.
-ASSET_VERSION = "2026.11.16b"
+ASSET_VERSION = "2026.11.18m"
 
 # Every old page is now a section on the home page. Old URLs keep working via redirects.
 SECTION_ANCHORS = {
@@ -390,18 +390,8 @@ def build_graph(projects, awards):
 
 @app.route("/")
 def home():
-    projects = get_projects()
-    awards = get_awards()
-    ecs = get_extra_curriculars()
-    return render_template(
-        "index.html",
-        g=build_graph(projects, awards),
-        awards=awards,
-        experiences=get_experiences(),
-        skills=get_skills(),
-        ecs=ecs,
-        frc_ec=next((e for e in ecs if "frc" in (e.get("title") or "").lower()), None),
-    )
+    # The home page is written in templates/index.html, so it needs no database round trip.
+    return render_template("index.html")
 
 
 # ---------------------------------------------------------------------------

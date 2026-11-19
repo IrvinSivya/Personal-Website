@@ -1,359 +1,208 @@
 {% extends 'base.html' %}
-{% import 'partials/icons.html' as icons %}
-{% from '_macros.html' import pic %}
 
-{#- The home page is one graph. Every box is a node; clicking a node opens its popup (a <dialog>
-    further down, filled server-side so the content is in the page for search engines and for
-    visitors without JavaScript, who get there through the #id link instead). Wires between nodes
-    are drawn by static/js/script.js from where the nodes end up, so the layout is plain CSS. -#}
+{#- The home page is four doors around a name card: Robotics, Hackathons, Awards + achievements
+    and LibeCode. Each door is a faded photo collage that returns to colour on hover and opens a
+    popup (a <dialog> below). The content is written here, not loaded from the database, so the
+    page renders without a MongoDB round trip. static/js/home.js opens the popups and keeps the
+    URL hash in step; without JavaScript each door is a plain #link to its popup. -#}
 
-{% macro links(p) -%}
-{% if p.github or p.link or p.linkedin %}
-<p class="links">
-  {% if p.link %}<a href="{{ p.link }}" target="_blank" rel="noopener">{{ p.link_label }} ↗</a>{% endif %}
-  {% if p.github %}<a href="{{ p.github }}" target="_blank" rel="noopener">GitHub ↗</a>{% endif %}
-  {% if p.linkedin %}<a href="{{ p.linkedin }}" target="_blank" rel="noopener">LinkedIn post ↗</a>{% endif %}
-</p>
-{% endif %}
+{% macro img(path, alt, cls='') -%}
+<img {% if cls %}class="{{ cls }}" {% endif %}src="{{ url_for('static', filename='images/' ~ path) }}" alt="{{ alt }}" loading="lazy" decoding="async">
 {%- endmacro %}
 
-{% macro project_card(p) -%}
-<article class="card">
-  {% if p.image %}<div class="card__img{% if p.is_logo %} is-logo{% endif %}">{{ pic('projects', p.image, p.title) }}</div>{% endif %}
-  <div class="card__body">
-    {% if p.kicker %}<p class="card__kicker">{{ p.kicker }}</p>{% endif %}
-    <h3 class="card__title">{{ p.title }}</h3>
-    <p class="card__desc">{{ p.description }}</p>
-    {% if p.tech_list %}<p class="card__tech">{{ p.tech_list|join(' · ') }}</p>{% endif %}
-    {{ links(p) }}
-  </div>
-</article>
+{% macro door(id, cls, cat, stat, line, sub, cta, pic, alt) -%}
+<a class="door door--{{ id }} {{ cls }}" href="#{{ id }}" data-open="{{ id }}">
+  <img class="door__bg" src="{{ url_for('static', filename='images/home/' ~ pic) }}?v={{ asset_v }}" alt="{{ alt }}" decoding="async">
+  <span class="door__tx">
+    <span class="door__stat">{{ stat }}</span>
+    <span class="door__line">{{ line }}</span>
+    {% if sub %}<span class="door__sub">{{ sub }}</span>{% endif %}
+    <span class="door__btn"><span>{{ cta }}</span><span aria-hidden="true">→</span></span>
+  </span>
+</a>
 {%- endmacro %}
 
-{% macro award_card(a) -%}
-<article class="card card--row">
-  {% if a.image %}<div class="card__img{% if a.is_logo %} is-logo{% endif %}">{{ pic('accomplishments', a.image, a.title) }}</div>{% endif %}
-  <div class="card__body">
-    {% if a.year %}<p class="card__kicker">{{ a.year }}</p>{% endif %}
-    <h3 class="card__title">{{ a.title }}</h3>
-    <p class="card__desc">{{ a.description }}</p>
-    {% if a.link %}<p class="links"><a href="{{ a.link }}" data-open="{{ a.link[1:] }}">See the projects →</a></p>{% endif %}
-  </div>
-</article>
-{%- endmacro %}
-
-{% macro pop_head(id, path, title) -%}
-<header class="pop__head">
-  <span class="pop__path">irvin_sivya<b>.{{ path }}</b></span>
-  <button class="pop__close" type="button" data-close aria-label="Close">esc ✕</button>
+{% macro tabs(active) -%}
+<header class="dlg__bar">
+  <nav class="dlg__tabs" aria-label="Sections">
+    {% for id, label in [('robotics', 'Robotics'), ('hackathons', 'Hackathons'), ('awards', 'Awards + achievements'), ('libecode', 'LibeCode')] %}
+    <a href="#{{ id }}" data-open="{{ id }}"{% if id == active %} aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <button class="dlg__close" type="button" data-close aria-label="Close">esc ✕</button>
 </header>
-<h2 class="pop__title" id="{{ id }}-t">{{ title }}</h2>
 {%- endmacro %}
 
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v={{ asset_v }}">{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/home.js') }}?v={{ asset_v }}" defer></script>{% endblock %}
+{% block preload %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-land.png') }}">
+<link rel="preload" as="image" href="{{ url_for('static', filename='data/earth-lights.webp') }}" type="image/webp">
+{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block content %}
-{% set robot = g.robots[0] if g.robots else none %}
-{% set first_win = g.wins[0] if g.wins else none %}
+<section class="doors" id="top" aria-label="Irvin Sivya">
+  {{ door('robotics', 'door--dk door--tl', 'Robotics', '3x', 'FRC World Championships', '2 awards at Worlds, 115 lb robots', 'Open robotics', 'robotics.jpg', 'Photos from four seasons of FRC robotics') }}
+  {{ door('hackathons', 'door--lt door--tr', 'Hackathons', '4x', 'hackathon winner', 'Two 1st places, two 2nd places', 'Open hackathons', 'hack.jpg', 'Photos from hackathon wins') }}
+  {{ door('awards', 'door--lt door--bl', 'Awards + achievements', '99%', 'graduating average', 'Highest in class of 460, Schulich Leader nominee', 'Open awards', 'awards.jpg', 'Photos of awards, graduation and sport') }}
+  {{ door('libecode', 'door--dk door--br', 'LibeCode', 'CEO', '& co-founder of LibeCode', 'Interviews for AI token efficiency', 'Open LibeCode', 'libecode.jpg', 'LibeCode product and founders') }}
 
-<div class="graph" id="graph">
-  <svg class="wires" id="wires" aria-hidden="true"></svg>
+  <i class="rule rule--h rule--1"></i><i class="rule rule--h rule--2"></i><i class="rule rule--h rule--3"></i>
+  <i class="rule rule--v rule--1"></i><i class="rule rule--v rule--2"></i><i class="rule rule--v rule--3"></i>
 
-  <div class="graph__top">
-    <!-- left column -->
-    <div class="col col--left">
-      <a class="node node--side is-link" href="#experience" data-open="experience" data-id="experience" data-path="irvin_sivya.experience">
-        <span class="node__head"><span>experience</span><span>{{ experiences|length + 1 }}</span></span>
-        <span class="node__body">
-          <strong>Experience</strong>
-          LibeCode{% for e in experiences %} · {{ e.title|replace(' Internship', '')|replace("Team 1241's ", '') }}{% endfor %}
-        </span>
-      </a>
-      {% if g.libecode %}
-      <a class="node node--side node--image is-link" href="#libecode" data-open="libecode" data-id="libecode" data-path="irvin_sivya.ceo_of">
-        <span class="node__head"><span>libecode</span><span>CEO</span></span>
-        <span class="node__img node__img--libecode">{{ pic('projects', 'libecode_hero.jpg', 'LibeCode on a laptop: hire for how engineers code with AI') }}</span>
-        <span class="node__body">
-          <strong>LibeCode</strong>
-          Technical interviews that measure how efficiently engineers use AI. Used by YC startups.
-        </span>
-      </a>
-      {% endif %}
+  <div class="me">
+    <div class="me__tx">
+      <h1 class="me__name">Irvin Sivya</h1>
+      <p class="me__tag">CS @ Waterloo &amp; CEO @ LibeCode</p>
     </div>
-
-    <!-- centre: you, and your four numbers -->
-    <div class="col col--mid">
-      <section class="node node--root" id="top" data-id="root" data-path="irvin_sivya">
-        <span class="node__head"><span>irvin_sivya</span><span>root</span></span>
-        <div class="root__body">
-          <div class="root__text">
-            <p class="hero__eyebrow"><span class="pulse" aria-hidden="true"></span>CS @ Waterloo &amp; CEO @ LibeCode</p>
-            <h1 class="hero__title" aria-label="Irvin Sivya">
-              <span class="line" aria-hidden="true"><span>Irvin</span></span>
-              <span class="line" aria-hidden="true"><span>Sivya</span></span>
-            </h1>
-          </div>
-          <figure class="hero__media">
-            <div class="hero__frame">
-              <picture>
-                <source srcset="{{ url_for('static', filename='images/hero.webp') }}" type="image/webp">
-                <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Irvin Sivya on the microphone at an FRC event with Team 1241" fetchpriority="high" decoding="async">
-              </picture>
-            </div>
-          </figure>
-        </div>
-        <p class="root__foot">
-          <a href="{{ url_for('resume') }}" data-resume>request_resume()</a>
-          <a href="mailto:irvinsivya@gmail.com">irvinsivya@gmail.com</a>
-          <a href="https://github.com/IrvinSivya" target="_blank" rel="noopener">GitHub ↗</a>
-          <a href="{{ linkedin_url }}" target="_blank" rel="noopener">LinkedIn ↗</a>
-        </p>
-      </section>
-
-      <div class="stats">
-        <a class="node stat is-link" href="#robots" data-open="robots" data-id="s-robots" data-path="irvin_sivya.frc_hours">
-          <strong>2,000+</strong><span>FRC hours</span></a>
-        <a class="node stat is-link" href="#projects" data-open="projects" data-id="s-projects" data-path="irvin_sivya.hackathon_wins">
-          <strong>4×</strong><span>hackathon wins</span></a>
-        <a class="node stat is-link" href="#academics" data-open="academics" data-id="s-academics" data-path="irvin_sivya.grad_average">
-          <strong>99%</strong><span>grad average</span></a>
-        <a class="node stat is-link" href="#awards" data-open="awards" data-id="s-awards" data-path="irvin_sivya.scholarships">
-          <strong>$300K+</strong><span>in scholarships</span></a>
-      </div>
-    </div>
-
-    <!-- right column -->
-    <div class="col col--right">
-      <a class="node node--side is-link" href="#skills" data-open="skills" data-id="skills" data-path="irvin_sivya.skills">
-        <span class="node__head"><span>skills</span><span>{{ skills.programming|length + skills.tools|length }}+</span></span>
-        <span class="node__body">
-          <strong>Skills</strong>
-          {{ (skills.programming + skills.tools)|map(attribute='title')|list|batch(6)|first|join(' · ') }}
-        </span>
-      </a>
-      <a class="node node--side is-link" href="#beyond" data-open="beyond" data-id="beyond" data-path="irvin_sivya.beyond_code">
-        <span class="node__head"><span>beyond_code</span><span>{{ ecs|length }}</span></span>
-        <span class="node__body">
-          <strong>Beyond code</strong>
-          {{ ecs|map(attribute='title')|join(' · ') }}
-        </span>
-      </a>
-    </div>
+    <img class="me__pic" src="{{ url_for('static', filename='images/home/irvin.jpg') }}?v={{ asset_v }}" alt="Irvin Sivya" width="480" height="480">
   </div>
+</section>
 
-  <!-- what each number points to -->
-  <div class="graph__bottom">
-    <a class="node node--image is-link" href="#robots" data-open="robots" data-id="robots" data-path="frc_hours → robots">
-      <span class="node__head"><span>frc_robots</span><span>FRC 1285 · 1241</span></span>
-      {% if robot %}<span class="node__img">{{ pic('projects', robot.image, robot.title) }}</span>{% endif %}
-      <span class="node__body">
-        <strong>{{ robot.title if robot else 'FRC robots' }}</strong>
-        Lead programmer · 15 FRC awards · 3× international
-      </span>
-    </a>
-    <a class="node node--image is-link" href="#projects" data-open="projects" data-id="projects" data-path="hackathon_wins → projects">
-      <span class="node__head"><span>projects/*</span><span>{{ g.wins|length + g.builds|length }}</span></span>
-      {% if first_win %}<span class="node__img{% if first_win.is_logo %} is-logo{% endif %}">{{ pic('projects', first_win.image, first_win.title) }}</span>{% endif %}
-      <span class="node__body">
-        <strong>Projects</strong>
-        {% for p in g.wins %}{{ p.title }} ({{ p.kicker.split(' ')[0] }}){% if not loop.last %} · {% endif %}{% endfor %}{% if g.builds %} · +{{ g.builds|length }} more{% endif %}
-      </span>
-    </a>
-    {# A div, not a link: it holds its own link to the Schulich video. node__cover makes the rest of
-       the box open the popup. #}
-    <div class="node node--image is-link" data-id="academics" data-path="grad_average → academics">
-      <a class="node__cover" href="#academics" data-open="academics" aria-label="Academics"></a>
-      <span class="node__head"><span>academics</span><span>Waterloo ’31</span></span>
-      <span class="node__img node__img--uw">{{ pic('accomplishments', 'uw_davis_centre.jpg', 'The Davis Centre bridge at the University of Waterloo') }}</span>
-      <span class="node__body">
-        <strong>Academics</strong>
-        Schulich Leader Scholarship offers from Queen’s and Waterloo (<a class="node__inline" href="{{ url_for('static', filename='images/schulich.mp4') }}" target="_blank" rel="noopener">video ↗</a>) · Waterloo CS ’31
-      </span>
-    </div>
-    <a class="node node--image is-link" href="#awards" data-open="awards" data-id="awards" data-path="scholarships → awards">
-      <span class="node__head"><span>awards</span><span>{{ awards|length }}</span></span>
-      {# The board keeps the Dean's List photo even though Schulich is first in the popup. #}
-      {% set cover = (awards|selectattr('image', 'equalto', 'durham_deans.jpg')|first) or awards[0] %}
-      {% if cover %}<span class="node__img{% if cover.is_logo %} is-logo{% endif %}">{{ pic('accomplishments', cover.image, cover.title) }}</span>{% endif %}
-      <span class="node__body">
-        <strong>Awards &amp; scholarships</strong>
-        FRC Dean’s List · WolfHacks 1st · AWS certified · {{ awards|length }} in all
-      </span>
-    </a>
-  </div>
-</div>
-
-<!-- ============================== POPUPS ============================== -->
-
-<dialog class="pop" id="about" aria-labelledby="about-t">
-  {{ pop_head('about', 'about_me()', 'About me') }}
-  <div class="pop__body about">
-    <figure class="about__photo">
-      <picture>
-        <source srcset="{{ url_for('static', filename='images/headshot.webp') }}" type="image/webp">
-        <img src="{{ url_for('static', filename='images/headshot.jpg') }}" alt="Irvin Sivya" loading="lazy" decoding="async">
-      </picture>
-      <figcaption><a href="{{ url_for('static', filename='images/schulich.mp4') }}" target="_blank" rel="noopener">Watch my Schulich Leader video ↗</a></figcaption>
-    </figure>
-    <div>
-      <p>Hey, I’m Irvin. I grew up in Mississauga, spent high school writing code for 115‑lb robots, and now study Computer Science at Waterloo.</p>
-      <p>Right now I’m building LibeCode, a better way to run technical interviews now that everyone codes with AI. When I’m not on that, I’m at the gym, on a basketball court, or helping Team 1241’s programmers.</p>
-      <p class="links">
-        <a href="mailto:irvinsivya@gmail.com">irvinsivya@gmail.com</a>
-        <a href="https://github.com/IrvinSivya" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="{{ linkedin_url }}" target="_blank" rel="noopener">LinkedIn ↗</a>
-        <a href="https://instagram.com/irvs71" target="_blank" rel="noopener">Instagram ↗</a>
-        <a href="{{ url_for('resume') }}" data-resume>Request resume</a>
-      </p>
-    </div>
-  </div>
-</dialog>
-
-<dialog class="pop" id="experience" aria-labelledby="experience-t">
-  {{ pop_head('experience', 'experience', 'Experience') }}
-  <ol class="pop__body timeline">
-    {# LibeCode is Irvin's current role. It lives in the template rather than the experiences
-       collection; move it to the DB with priority 0 when convenient. #}
-    <li>
-      <p class="timeline__when">Jul 2026 – now</p>
-      <div class="timeline__logo is-logo">{{ pic('projects', 'LibeCodeLogo.png', '') }}</div>
-      <div>
-        <h3>Co-Founder &amp; CEO, <a href="https://libecode.com/" target="_blank" rel="noopener">LibeCode</a></h3>
-        <p>Running a technical interview platform that measures how efficiently engineers use AI, now used by companies including YC startups. I lead the company and still write much of the code.</p>
-      </div>
-    </li>
-    {% for e in experiences %}
-    <li>
-      <p class="timeline__when">{{ e.time|daterange }}</p>
-      <div class="timeline__logo{% if e.is_logo %} is-logo{% endif %}">{{ pic('experiences', e.image, '') }}</div>
-      <div><h3>{{ e.title }}</h3><p>{{ e.description }}</p></div>
-    </li>
-    {% endfor %}
-  </ol>
-</dialog>
-
-{% if g.libecode %}
-<dialog class="pop pop--compact" id="libecode" aria-labelledby="libecode-t">
-  {{ pop_head('libecode', 'ceo_of', 'LibeCode') }}
-  <div class="pop__body split">
-    <figure class="split__img">{{ pic('projects', 'libecode_hero.jpg', 'LibeCode on a laptop: hire for how engineers code with AI') }}</figure>
-    <div class="split__text">
-      <p class="pop__lede">Co-founder &amp; CEO · since July 2026</p>
-      <p>Technical interviews that measure how efficiently engineers use AI. On a fixed token budget, candidates solve a real engineering task with any AI models they choose, and the hiring team gets a report on how they worked.</p>
-      <dl class="kv">
-        <div><dt>used by</dt><dd>Companies, including YC startups</dd></div>
-        <div><dt>my role</dt><dd>Run the company, still write much of the code</dd></div>
-        <div><dt>advisors</dt><dd>Professors at UofT and McMaster</dd></div>
-        <div><dt>stack</dt><dd>TypeScript · Next.js · Supabase · Cloudflare</dd></div>
+{# ------------------------------- Robotics ------------------------------- #}
+<dialog class="dlg dlg--dk" id="robotics" aria-labelledby="robotics-t">
+  {{ tabs('robotics') }}
+  <div class="dlg__body dlg__body--side">
+    <aside class="side">
+      <p class="side__stat">3x</p>
+      <h2 class="side__line" id="robotics-t">FRC World Championships</h2>
+      <p class="side__note">Lead programmer for four years on FRC Teams 1285 and 1241, writing the real-time Java control code that runs on the robot.</p>
+      <dl class="facts">
+        <div><dt>2,000+</dt><dd>hours programming</dd></div>
+        <div><dt>15+</dt><dd>team awards</dd></div>
+        <div><dt>2</dt><dd>awards at the World Championship</dd></div>
       </dl>
-      {{ links(g.libecode) }}
+    </aside>
+    <div class="main">
+      <a class="garage" href="https://robotics.irvinsivya.com" target="_blank" rel="noopener">
+        {{ img('home/garage.jpg', 'The robotics site: five robots lined up in the garage') }}
+        <span class="garage__btn">Enter the garage, robotics.irvinsivya.com ↗</span>
+      </a>
     </div>
   </div>
 </dialog>
-{% endif %}
 
-<dialog class="pop" id="skills" aria-labelledby="skills-t">
-  {{ pop_head('skills', 'skills', 'Skills') }}
-  <div class="pop__body">
-    {% for group, folder, label in [(skills.programming, 'programming', 'Languages'), (skills.tools, 'tools', 'Frameworks, databases & tools')] %}
-    {% if group %}
-    <h3 class="pop__sub">{{ label }}</h3>
-    <ul class="skills">
-      {% for s in group %}<li>{% if s.image %}<span class="skills__icon">{{ pic('skills/' + folder, s.image, '') }}</span>{% endif %}{{ s.title }}</li>{% endfor %}
-    </ul>
-    {% endif %}
-    {% endfor %}
-    <h3 class="pop__sub">Also fluent in</h3>
-    <p>Pandas · Scikit-learn · PostgreSQL · Node.js · Expo · Hugging Face · WPILib · AdvantageScope · Claude Code · E2B</p>
-    {% if skills.soft %}
-    <h3 class="pop__sub">How I work</h3>
-    <p>{{ skills.soft|map(attribute='title')|join(' · ') }}</p>
-    {% endif %}
-  </div>
-</dialog>
-
-<dialog class="pop" id="beyond" aria-labelledby="beyond-t">
-  {{ pop_head('beyond', 'beyond_code', 'Beyond code') }}
-  <div class="pop__body grid3">
-    {% for e in ecs %}
-    <article class="card">
-      <div class="card__img card__img--tall{% if e.is_logo %} is-logo{% endif %}">{{ pic('extra_curriculars', e.image, e.title) }}</div>
-      <div class="card__body"><h3 class="card__title">{{ e.title }}</h3><p class="card__desc">{{ e.description }}</p></div>
-    </article>
-    {% endfor %}
-  </div>
-</dialog>
-
-<dialog class="pop" id="robots" aria-labelledby="robots-t">
-  {{ pop_head('robots', 'frc_hours → robots', 'FRC robots') }}
-  <div class="pop__body">
-    <p class="pop__lede">Lead programmer on Teams 1285 and 1241 for four years · 2,000+ hours · 15 team awards · competed internationally 3×</p>
-    <p class="links"><a href="https://robotics.irvinsivya.com" target="_blank" rel="noopener">See all five robots and how we programmed them ↗</a></p>
-    <div class="photos">
-      {% for p in g.robots %}
-      <figure style="--ar:{{ 800 / 748 }}">
-        <div class="photos__img">{{ pic('projects', p.image, p.title) }}</div>
-        <figcaption><b>{{ p.title }}</b> · 3rd in Hopper’s playoffs at the World Championship{% if p.link %} · <a href="{{ p.link }}" target="_blank" rel="noopener">watch ↗</a>{% endif %}</figcaption>
-      </figure>
-      {% endfor %}
-      {% if frc_ec %}
-      <figure style="--ar:{{ 900 / 590 }}">
-        <div class="photos__img">{{ pic('extra_curriculars', frc_ec.image, 'Irvin driving the robot with the drive team') }}</div>
-        <figcaption><b>On the drive team</b> · {{ frc_ec.description }}</figcaption>
-      </figure>
-      {% endif %}
+{# ------------------------------- Hackathons ------------------------------- #}
+<dialog class="dlg dlg--lt" id="hackathons" aria-labelledby="hackathons-t">
+  {{ tabs('hackathons') }}
+  <div class="dlg__body dlg__body--side">
+    <aside class="side side--narrow">
+      <p class="side__stat">4x</p>
+      <h2 class="side__line" id="hackathons-t">hackathon winner</h2>
+      {{ img('accomplishments/GDGWinner.webp', 'Irvin and his team after winning GDG Code the Cup', 'side__pic') }}
+    </aside>
+    <div class="main">
+      <ul class="wins">
+        <li class="win">
+          <div class="win__pic">{{ img('projects/OJuggle.webp', 'OJuggle') }}<span class="tag">1st place</span></div>
+          <div class="win__tx">
+            <h3>OJuggle</h3>
+            <p class="win__event">GDG Code the Cup</p>
+            <p class="win__desc">A 1v1 platform where players compete at soccer keep-ups. It scores each trick's difficulty, so flashier moves earn more.</p>
+            <ul class="chips"><li>Python</li><li>TypeScript</li><li>Next.js</li><li>Supabase</li></ul>
+            <a class="win__link" href="https://www.linkedin.com/posts/irvin-sivya_%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AD%F0%9D%98%80%F0%9D%98%81-%F0%9D%97%B6%F0%9D%97%BB-%F0%9D%9F%B1-%F0%9D%97%B1%F0%9D%97%AE%F0%9D%98%86%F0%9D%98%80-ugcPost-7485405881447116800-3B3d/" target="_blank" rel="noopener"><span>LinkedIn post</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </li>
+        <li class="win">
+          <div class="win__pic">{{ img('projects/rose.webp', 'Project R.O.S.E.', 'win__logo win__logo--rose') }}<span class="tag">1st place</span></div>
+          <div class="win__tx">
+            <h3>Project R.O.S.E.</h3>
+            <p class="win__event">WolfHacks 2025</p>
+            <p class="win__desc">1st of 76 teams at Peel's largest hackathon, with a waste-sorting image classifier and a micro:bit prototype.</p>
+            <ul class="chips"><li>Python</li><li>Hugging Face</li><li>Java</li><li>micro:bit</li></ul>
+            <a class="win__link" href="https://lnkd.in/p/g65NypgZ" target="_blank" rel="noopener"><span>LinkedIn post</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </li>
+        <li class="win">
+          <div class="win__pic">{{ img('projects/ExpenseCity.webp', 'ExpenseCity', 'win__logo win__logo--city') }}<span class="tag">2nd place</span></div>
+          <div class="win__tx">
+            <h3>ExpenseCity</h3>
+            <p class="win__event">IBM Bobathon</p>
+            <p class="win__desc">An expense tracker that turns your spending into a 3D city. Taller buildings are bigger expenses.</p>
+            <ul class="chips"><li>JavaScript</li><li>Three.js</li><li>IBM Bob</li></ul>
+            <a class="win__link" href="https://www.linkedin.com/posts/irvin-sivya_%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AD%F0%9D%98%80%F0%9D%98%81-%F0%9D%97%B6%F0%9D%97%BB-%F0%9D%9F%B1-%F0%9D%97%B1%F0%9D%97%AE%F0%9D%98%86%F0%9D%98%80-ugcPost-7485405881447116800-3B3d/" target="_blank" rel="noopener"><span>LinkedIn post</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </li>
+        <li class="win">
+          <div class="win__pic">{{ img('projects/daybot.webp', 'Daybot, the mascot of the Daybot Commerce Hackathon', 'win__top') }}<span class="tag">2nd place</span></div>
+          <div class="win__tx">
+            <h3>LaunchScore</h3>
+            <p class="win__event">Daybot Commerce Hackathon</p>
+            <p class="win__desc">Audits an AI-generated storefront from its URL, scores the store and each product, and says what to fix first.</p>
+            <ul class="chips"><li>Python</li><li>TypeScript</li><li>RAG</li><li>Gemini</li></ul>
+            <a class="win__link" href="https://www.linkedin.com/posts/irvin-sivya_%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AE%F0%9D%97%BB%F0%9D%97%B1-%F0%9D%9F%AD%F0%9D%98%80%F0%9D%98%81-%F0%9D%97%B6%F0%9D%97%BB-%F0%9D%9F%B1-%F0%9D%97%B1%F0%9D%97%AE%F0%9D%98%86%F0%9D%98%80-ugcPost-7485405881447116800-3B3d/" target="_blank" rel="noopener"><span>LinkedIn post</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </li>
+      </ul>
+      <h3 class="rowhead">Other builds</h3>
+      <ul class="builds">
+        <li><b>IntelliSage</b><span>A Chrome extension that summarizes and defines highlighted text, so you never leave the page.</span></li>
+        <li><b>CrimeWatcher</b><span>A model trained on 474K police records that forecasts crime risk for 158 Toronto neighbourhoods.</span><a href="https://canadacrimewatcher.vercel.app/" target="_blank" rel="noopener">Live site ↗</a></li>
+        <li><b>SalesPatriot</b><span>Built as an intern at SalesPatriot (YC W25): a dashboard that flags risky LLM-written proposal text for review.</span></li>
+      </ul>
     </div>
-    {% if g.frc_awards %}
-    <h3 class="pop__sub">FRC awards</h3>
-    <ul class="mini">
-      {% for a in g.frc_awards %}
-      <li><span class="mini__img{% if a.is_logo %} is-logo{% endif %}">{{ pic('accomplishments', a.image, '') }}</span><span>{{ a.title }}</span></li>
-      {% endfor %}
-    </ul>
-    {% endif %}
   </div>
 </dialog>
 
-<dialog class="pop" id="projects" aria-labelledby="projects-t">
-  {{ pop_head('projects', 'hackathon_wins → projects', 'Projects') }}
-  <div class="pop__body">
-    {% if g.wins %}
-    <h3 class="pop__sub">Hackathon wins</h3>
-    <div class="plist">{% for p in g.wins %}{{ project_card(p) }}{% endfor %}</div>
-    {% endif %}
-    {% if g.builds %}
-    <h3 class="pop__sub">Other builds</h3>
-    <div class="plist">{% for p in g.builds %}{{ project_card(p) }}{% endfor %}</div>
-    {% endif %}
-    <p class="pop__more">Also see <a href="#robots" data-open="robots">FRC robots</a> and <a href="#libecode" data-open="libecode">LibeCode</a>.</p>
+{# ------------------------------- Awards ------------------------------- #}
+<dialog class="dlg dlg--lt" id="awards" aria-labelledby="awards-t">
+  {{ tabs('awards') }}
+  <div class="dlg__body dlg__body--side">
+    <aside class="side">
+      <p class="side__stat">99%</p>
+      <h2 class="side__line" id="awards-t">graduating average</h2>
+      <p class="side__note">The highest Grade 12 average in a graduating class of 460 at Rick Hansen Secondary School.</p>
+      <dl class="facts">
+        <div><dt>$300k</dt><dd>in STEM scholarship offers</dd></div>
+        <div><dt>5s</dt><dd>on three AP exams</dd></div>
+        <div><dt>CS</dt><dd>at the University of Waterloo</dd></div>
+      </dl>
+    </aside>
+    <div class="main">
+      <article class="feature">
+        {{ img('home/schulich.jpg', 'Schulich Leader Nominee certificate') }}
+        <div><span class="tag">Top award</span><h3>Schulich Leader Nominee</h3>
+        <p>Offered the Schulich Leader Scholarship by Queen's (Computer Science, $100,000) and Waterloo (Computer Engineering, $120,000). Out of 300,000+ eligible students, about 1,500 are nominated, and each university selects only 10.</p></div>
+      </article>
+      <ul class="awardlist">
+        <li>{{ img('accomplishments/durham_deans.jpg', 'FRC Dean\'s List Award') }}<div><b>FRC Dean's List Winner</b><span>2024 Durham College District Event, as lead programmer on Team 1285.</span></div></li>
+        <li>{{ img('projects/rose.webp', 'WolfHacks 2025') }}<div><b>WolfHacks 2025, 1st place</b><span>1st of 76 teams at Peel's largest hackathon.</span></div></li>
+        <li>{{ img('accomplishments/aws_badges.webp', 'AWS Certified Cloud Practitioner and AI Practitioner badges') }}<div><b>AWS Certified, twice</b><span>Cloud Practitioner and AI Practitioner, July 2026.</span></div></li>
+        <li>{{ img('accomplishments/csmc.webp', 'CSMC School Champion medal') }}<div><b>Waterloo CSMC School Champion</b><span>Plus a Certificate of Distinction, 2025.</span></div></li>
+        <li>{{ img('accomplishments/ap_scholar_card.webp', 'AP Scholar: three scores of 5') }}<div><b>AP Scholar</b><span>Self-studied 5s in Calculus AB, Calculus BC and Computer Science A.</span></div></li>
+        <li>{{ img('accomplishments/GDGWinner.webp', 'Hackathon winners') }}<div><b>4x hackathon winner</b><span>WolfHacks, GDG Code the Cup, IBM Bobathon and Daybot.</span></div></li>
+        <li>{{ img('extra_curriculars/afc_southampton.jpg', 'Playing for AFC Southampton') }}<div><b>AFC Southampton captain</b><span>Captain of the team for 6 years.</span></div></li>
+        <li>{{ img('accomplishments/powerlifting.webp', 'Powerlifting medalists') }}<div><b>Powerlifting champ</b><span>4x medalist, with school bench press and deadlift records at 66 kg.</span></div></li>
+      </ul>
+    </div>
   </div>
 </dialog>
 
-<dialog class="pop" id="academics" aria-labelledby="academics-t">
-  {{ pop_head('academics', 'grad_average → academics', 'Academics') }}
-  <div class="pop__body">
-    <figure class="pop__hero pop__hero--photo pop__hero--uw">{{ pic('accomplishments', 'uw_davis_centre.jpg', 'The Davis Centre bridge at the University of Waterloo') }}</figure>
-    <p class="credit">Davis Centre, University of Waterloo. Photo: <a href="https://commons.wikimedia.org/wiki/File:University_of_Waterloo_William_G._Davis_Computer_Research_Center_Bridge.jpg" target="_blank" rel="noopener">Victor Vucicevich</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.</p>
-    <dl class="kv">
-      <div><dt>now</dt><dd>Computer Science (co-op), University of Waterloo, class of 2031</dd></div>
-      <div><dt>average</dt><dd>99%, the highest graduating average in a class of ~460 at Rick Hansen Secondary</dd></div>
-      <div><dt>offers</dt><dd>$300K+ in STEM scholarship offers</dd></div>
-      <div><dt>schulich</dt><dd>Offered the Schulich Leader Scholarship by Queen’s (CS, $100,000) and Waterloo (Computer Engineering, $120,000). About 1,500 of 300,000+ students are nominated; each university picks 10. <a href="{{ url_for('static', filename='images/schulich.mp4') }}" target="_blank" rel="noopener">Watch my video ↗</a></dd></div>
-    </dl>
-    {% if g.academic_awards %}
-    <div class="stack">{% for a in g.academic_awards %}{{ award_card(a) }}{% endfor %}</div>
-    {% endif %}
+{# ------------------------------- LibeCode ------------------------------- #}
+<dialog class="dlg dlg--dk" id="libecode" aria-labelledby="libecode-t">
+  {{ tabs('libecode') }}
+  <div class="dlg__body dlg__body--duo">
+    <div class="duo__media">
+      {{ img('projects/libecode_hero.jpg', 'LibeCode on a laptop: Hire for how engineers code with AI') }}
+      <dl class="boxes">
+        <div><dt>YC</dt><dd>startups pay for it</dd></div>
+        <div><dt>300+</dt><dd>AI models candidates can use</dd></div>
+        <div><dt>CEO</dt><dd>and co-founder</dd></div>
+      </dl>
+    </div>
+    <div class="duo__tx">
+      <h2 class="duo__title" id="libecode-t">LibeCode</h2>
+      <p class="duo__lede">Technical interviews that measure how efficiently engineers use AI.</p>
+      <dl class="spec">
+        <div><dt>The task</dt><dd>A real engineering problem, solved with any AI models the candidate chooses.</dd></div>
+        <div><dt>The limit</dt><dd>A fixed token budget.</dd></div>
+        <div><dt>The result</dt><dd>A report for the hiring team on how the candidate worked.</dd></div>
+        <div><dt>Used by</dt><dd>Companies, including YC startups.</dd></div>
+        <div><dt>Backed by</dt><dd>Advice from CS professors at UofT and McMaster, and a place in the Silicon Valley Fellowship.</dd></div>
+      </dl>
+      <a class="bigbtn" href="https://libecode.com/" target="_blank" rel="noopener">libecode.com ↗</a>
+    </div>
   </div>
 </dialog>
-
-<dialog class="pop" id="awards" aria-labelledby="awards-t">
-  {{ pop_head('awards', 'scholarships → awards', 'Awards & scholarships') }}
-  <div class="pop__body">
-    <p class="pop__lede">$300K+ in STEM scholarship offers, and {{ awards|length }} awards from robotics, school, hackathons, and sport.</p>
-    <div class="stack">{% for a in awards %}{{ award_card(a) }}{% endfor %}</div>
-  </div>
-</dialog>
-
-{% include 'partials/resume_dialog.html' %}
-
 {% endblock %}

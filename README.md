@@ -2,13 +2,13 @@
 
 Irvin Sivya's personal website: [irvinsivya.com](https://www.irvinsivya.com/).
 
-Flask + Jinja on Vercel, content in MongoDB. The site is a single page (`templates/index.html`)
-laid out as a node graph: a root node for Irvin, side nodes (experience, LibeCode, skills, beyond
-code), four numbers under the root, and a node under each number for what backs it up (FRC hours →
-robots, hackathon wins → projects, grad average → academics, scholarships → awards). Every node
-opens a popup (`<dialog id="...">`); `static/js/script.js` draws the wires and opens popups from
-`#id` links, so the old per-section URLs (`/projects`, `/accomplishments`, ...) still land on the
-right popup. A black-and-white globe intro (`static/js/intro.js`) plays once per session first.
+Flask + Jinja on Vercel. The home page is a single page (`templates/index.html`) laid out as four
+doors around a name card: Robotics, Hackathons, Awards + achievements and LibeCode. Each door is a
+faded photo collage (`static/images/home/`) that returns to colour on hover and opens a popup
+(`<dialog id="...">`). `static/js/home.js` opens the popups and keeps the URL hash in step, so
+`/#robotics` style links and the old per-section URLs land on the right popup. Styles for the
+page are in `static/css/home.css`; `static/css/style.css` still carries the reset, the intro and
+the resume pages. A black-and-white globe intro (`static/js/intro.js`) plays once per session first.
 The resume is not public: see [Resume requests](#resume-requests).
 
 ## Run locally
@@ -24,12 +24,12 @@ unless you mean to: it writes to the production database (it refuses without `--
 
 ## Content
 
-- Projects, awards, experiences, skills, and extracurriculars come from MongoDB (`my_portfolio`).
-- Hero, about, academics, and the LibeCode experience entry are hardcoded in `templates/index.html`.
-- `build_graph()` in `main.py` sorts projects and awards into the nodes (FRC, hackathon wins,
-  academic awards, everything else). A new document that matches nothing still appears in the
-  general projects or awards popup.
-- Images live in `static/images/<collection>/` and are referenced by filename from the DB.
+- The home page and its four popups are written by hand in `templates/index.html`, so the page
+  renders without a database round trip.
+- MongoDB (`my_portfolio`) still holds the resume requests and the resume file. The older
+  collections (projects, awards, experiences, skills, extracurriculars) and their helpers in
+  `main.py` are no longer read by the home page.
+- Images live in `static/images/`; the door collages and the portrait are in `static/images/home/`.
 
 ## Resume requests
 
